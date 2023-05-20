@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="__lib__">
+    <CLASSES>
+      <root url="file://$USER_HOME$/SmartFoxServer_2X/SFS2X/extensions/__lib__" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/src/main/java" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/SmartFoxServer_2X/SFS2X/extensions/__lib__" recursive="false" />
+  </library>
+</component>
