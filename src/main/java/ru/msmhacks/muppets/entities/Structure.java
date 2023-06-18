@@ -182,7 +182,7 @@ public class Structure {
                 s.size_x = rs.getInt("size_x");
                 s.size_y = rs.getInt("size_y");
                 s.sticker_offset = rs.getInt("sticker_offset");
-                s.view_in_market = rs.getInt("view_in_market");
+                s.view_in_market = 1;//rs.getInt("view_in_market");
                 s.xp = rs.getInt("xp");
                 s.y_offset = rs.getInt("y_offset");
                 s.description = rs.getString("description");

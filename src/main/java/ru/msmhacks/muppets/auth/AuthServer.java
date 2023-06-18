@@ -4,20 +4,25 @@ package ru.msmhacks.muppets.auth;
 import flak.App;
 import flak.Flak;
 import flak.Query;
+import flak.Request;
 import flak.annotations.Route;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import ru.msmhacks.muppets.MuppetsExtension;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AuthServer {
 
     public static String game_server_ip;
+    public static HashMap<String, String[]> ip2user = new HashMap<>();
 
     @Route("/auth.php")
-    public String auth(Query q) {
+    public String auth(Request req) {
+        Query q = req.getQuery();
+        String IP = req.getRemoteAddress().getHostString();
         MuppetsExtension.extension.trace("GET /auth.php: " + q.parameters());
 
         String username = q.get("u");
@@ -34,28 +39,26 @@ public class AuthServer {
 
         JSONObject response = new JSONObject();
 
-        if ("anon".equals(login_type)) {
-            if (Objects.equals(username, "")) {
-                String[] login_data = AuthMethods.createNewAnonAccount(lang, client_version, mac_address,
-                        platform, device_id, application_id);
+        String[] login_data = AuthMethods.createNewAnonAccount(lang, client_version, mac_address,
+                platform, device_id, application_id);
 
-                username = login_data[0];
-                password = login_data[1];
-                bbb_id = login_data[2];
+        username = login_data[0];
+        password = login_data[1];
+        bbb_id = login_data[2];
 
+        response.put("ok", true);
+        response.put("login_type", login_type);
+        response.put("anon_name", username);
+        response.put("anon_pass", password);
+        response.put("anon_bbb_id", bbb_id);
+        response.put("username", bbb_id);
+        response.put("account_id", bbb_id);
+        response.put("auto_login", true);
 
-                response.put("ok", true);
-                response.put("login_type", login_type);
-                response.put("anon_name", username);
-                response.put("anon_pass", password);
-                response.put("anon_bbb_id", bbb_id);
-            }
-        } else {
-            response.put("ok", false);
-            response.put("error", 2);
-            response.put("message", "Unsupported login type!");
-        }
         response.put("serverIp", game_server_ip);
+
+        ip2user.put(IP, login_data);
+
         return response.toString();
     }
 
@@ -90,8 +93,8 @@ public class AuthServer {
 
 
 
-    public static void runAuthServer(int port, String game_server_id) throws Exception {
-        AuthServer.game_server_ip = game_server_id;
+    public static void runAuthServer(int port, String game_server_ip) throws Exception {
+        AuthServer.game_server_ip = game_server_ip;
 
         DatabaseManager.init();
 
@@ -101,6 +104,6 @@ public class AuthServer {
     }
 
     public static void main(String[] args) throws Exception {
-        runAuthServer(80, "192.168.212.73");
+        runAuthServer(80, "192.168.0.100");
     }
 }

@@ -7,7 +7,7 @@ import static ru.msmhacks.muppets.auth.AuthUtils.stringCharSum;
 public class AuthMethods {
     public static String[] createNewAnonAccount(String lang, String client_version, String mac_address, String platform,
                                                 String device_id, String application_id) {
-        int random = (int) ((Math.random() * ((9999999 - 1000000) + 1)) + 1000000);
+        int random = 5643756;
         String username = Base64.getEncoder().encodeToString(String.valueOf(stringCharSum(device_id+mac_address)).getBytes()).replace("=", "!");
         String password = Base64.getEncoder().encodeToString(String.valueOf(stringCharSum(device_id+mac_address+random)).getBytes()).replace("=", "!");
 

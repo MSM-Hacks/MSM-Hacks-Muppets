@@ -2,6 +2,7 @@ package ru.msmhacks.muppets.managers;
 
 import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
+import ru.msmhacks.muppets.MuppetsExtension;
 import ru.msmhacks.muppets.entities.*;
 
 import java.io.File;
@@ -25,37 +26,51 @@ public class StaticDatabaseManager {
         if (drop) {
             SFSArray st;
             Monster.dropMonstersDatabase();
-            st = (SFSArray) Utils.getSFSFromJson(new File("C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\monster_data.json")).getSFSArray("monsters_data");
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "monster_data.json")).getSFSArray("monsters_data");
             for (int y=0;y<st.size();y++) {
                 Monster x = Monster.initWithSFSObject((SFSObject) st.getSFSObject(y));
                 x.importToDB();
             }
 
             Structure.dropStructuresDatabase();
-            st = (SFSArray) Utils.getSFSFromJson(new File("C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\structure_data.json")).getSFSArray("structures_data");
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "structure_data.json")).getSFSArray("structures_data");
             for (int y=0;y<st.size();y++) {
                 Structure x = Structure.initWithSFSObject((SFSObject) st.getSFSObject(y));
                 x.importToDB();
             }
 
             Island.dropIslandsDatabase();
-            st = (SFSArray) Utils.getSFSFromJson(new File("C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\island_data.json")).getSFSArray("islands_data");
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "island_data.json")).getSFSArray("islands_data");
             for (int y=0;y<st.size();y++) {
                 Island x = Island.initWithSFSObject((SFSObject) st.getSFSObject(y));
                 x.importToDB();
             }
 
             Level.dropLevelsDatabase();
-            st = (SFSArray) Utils.getSFSFromJson(new File("C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\level_data.json")).getSFSArray("level_data");
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "level_data.json")).getSFSArray("level_data");
             for (int y=0;y<st.size();y++) {
                 Level x = Level.initWithSFSObject((SFSObject) st.getSFSObject(y));
                 x.importToDB();
             }
 
             BreedingCombination.dropBreedingDatabase();
-            st = (SFSArray) Utils.getSFSFromJson(new File("C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\breeding_data.json")).getSFSArray("breedingcombo_data");
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "breeding_data.json")).getSFSArray("breedingcombo_data");
             for (int y=0;y<st.size();y++) {
                 BreedingCombination x = BreedingCombination.initWithSFSObject((SFSObject) st.getSFSObject(y));
+                x.importToDB();
+            }
+
+            Light.dropLightsDatabase();
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "lighting_data.json")).getSFSArray("lighting_data");
+            for (int y=0;y<st.size();y++) {
+                Light x = Light.initWithSFSObject((SFSObject) st.getSFSObject(y));
+                x.importToDB();
+            }
+
+            Backdrop.dropBackdropsDatabase();
+            st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "backdrop_data.json")).getSFSArray("backdrop_data");
+            for (int y=0;y<st.size();y++) {
+                Backdrop x = Backdrop.initWithSFSObject((SFSObject) st.getSFSObject(y));
                 x.importToDB();
             }
         }
@@ -76,12 +91,18 @@ public class StaticDatabaseManager {
 
         BreedingCombination.initBreedingDatabase();
         log("[DB Loader] Loaded " + BreedingCombination.breeding_fastdb.size() + " breeding combinations");
+
+        Light.initLightsDatabase();
+        log("[DB Loader] Loaded " + Light.lights_fastdb.size() + " lights");
+
+        Backdrop.initBackdropsDatabase();
+        log("[DB Loader] Loaded " + Backdrop.backdrops_fastdb.size() + " backdrops");
     }
 
 
     public static void main(String[] args) {
         try {
-            initAllDatabases(true);
+            initAllDatabases(false);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
