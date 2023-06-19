@@ -214,7 +214,6 @@ public class PlayerStructure {
         PlayerDatabaseManager.executeVoid("UPDATE player_structures SET pos_x = %s, pos_y = %s, scale = %s WHERE user_structure_id = %s;",
                 new Object[]{x, y, scale, user_structure_id});
     }
-
     public static void flipStructure(long user_structure_id) {
         getStructure(user_structure_id).flip = getStructure(user_structure_id).flip==0?1:0;
 
