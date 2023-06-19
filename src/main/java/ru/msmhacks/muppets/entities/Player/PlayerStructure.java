@@ -228,4 +228,5 @@ public class PlayerStructure {
         PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",
                 new Object[]{user_structure_id});
     }
+
 }
