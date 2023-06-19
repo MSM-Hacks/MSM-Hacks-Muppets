@@ -37,6 +37,7 @@ public class DatabaseManager {
                     .column(new Column("platform", ColumnType.TEXT))
                     .column(new Column("device_id", ColumnType.TEXT))
                     .column(new Column("application_id", ColumnType.TEXT))
+                    .column(new Column("IP", ColumnType.TEXT))
                     .toString();
 
             stmt.executeUpdate(sql);
@@ -52,14 +53,14 @@ public class DatabaseManager {
 
     public static long createNewUser(String username, String password, String login_type,
                                     String lang, String client_version, String mac_address, String platform,
-                                    String device_id, String application_id) {
+                                    String device_id, String application_id, String IP) {
 
         String sql = SQLiteQueryBuilder.insert()
                 .into("users")
                 .columns("username","password","login_type","lang","client_version","mac_address",
-                        "platform","device_id","application_id")
+                        "platform","device_id","application_id", "IP")
                 .values(username, password, login_type, lang, client_version, mac_address,
-                        platform, device_id, application_id)
+                        platform, device_id, application_id, IP)
                 .build();
 
         try {

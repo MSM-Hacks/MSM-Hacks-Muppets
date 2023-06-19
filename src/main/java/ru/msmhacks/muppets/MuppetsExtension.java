@@ -28,8 +28,8 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    public static String ROOT = "C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
-    //public static String ROOT = "/sdcard/msmhacks/res/";
+    //public static String ROOT = "C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
+    public static String ROOT = "/root/server/mms/";
     public static String DBROOT = ROOT;//"/home/uberbot/mms_dbs/";
 
     @Override
@@ -38,9 +38,9 @@ public class MuppetsExtension extends SFSExtension {
         addEventListener(SFSEventType.USER_JOIN_ZONE, new PlayerJoinListener());
 
         try {
-            runAuthServer(80, "192.168.0.100");
+            runAuthServer(80, "5.175.225.81");
             StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(false);
+            PlayerDatabaseManager.initAllDatabases(true);
         } catch (Exception e) {
             trace(e.getStackTrace());
         }
@@ -53,13 +53,14 @@ public class MuppetsExtension extends SFSExtension {
             User user = (User) isfsEvent.getParameter(SFSEventParam.USER);
             user.setProperty("user_id", AuthServer.ip2user.get(user.getIpAddress())[0]);
             user.setProperty("bbb_id", AuthServer.ip2user.get(user.getIpAddress())[2]);
+            user.setProperty("client_version", AuthServer.ip2user.get(user.getIpAddress())[3]);
 
-            if (false) {
-                user.setProperty("player", Player.getPlayer((String) user.getProperty("user_id"), Integer.parseInt((String) user.getProperty("bbb_id"))));
+            user.setProperty("player", Player.getPlayer((String) user.getProperty("user_id"), Integer.parseInt((String) user.getProperty("bbb_id"))));
+            //if (user.getProperty("client_version") == "1.1.6") {
                 extension.send("gs_initialized", new SFSObject(), user);
-            } else {
-                extension.send("gs_user_messages", SFSObject.newFromJsonData("{\"urls\":[{\"platform\":\"ios\",\"url\":\"https://discord.gg/msm-hacks\"},{\"platform\":\"android\",\"url\":\"https://discord.gg/msm-hacks\"},{\"platform\":\"amazon\",\"url\":\"https://discord.gg/msm-hacks\"},{\"platform\":\"samsung\",\"url\":\"https://discord.gg/msm-hacks\"}],\"success\":false,\"message\":\"You need to Activate your account\"}"), user);
-            }
+            //} else {
+            //    extension.send("gs_client_version_error", SFSObject.newFromJsonData("{\"urls\":[{\"platform\":\"ios\",\"url\":\"https://www.youtube.com/watch?v=xvFZjo5PgG0\"},{\"platform\":\"android\",\"url\":\"https://www.youtube.com/watch?v=xvFZjo5PgG0\"},{\"platform\":\"amazon\",\"url\":\"https://www.youtube.com/watch?v=xvFZjo5PgG0\"},{\"platform\":\"samsung\",\"url\":\"https://www.youtube.com/watch?v=xvFZjo5PgG0\"}],\"success\":false,\"message\":\"client version fail\"}"), user);
+            //}
         }
     }
 
@@ -200,6 +201,94 @@ public class MuppetsExtension extends SFSExtension {
                     SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "Error buying stricture");
+                }
+                break;
+            }
+            case "gs_move_structure": {
+                int x = params.getInt("pos_x");
+                int y = params.getInt("pos_y");
+                float scale = params.getDouble("scale").floatValue();
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.moveStructure(user_structure_id, x, y, scale);
+                if (newStructure != null) {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+
+                    SFSObject structure = new SFSObject();
+                    structure.putLong("island", player.active_island);
+                    structure.putInt("pos_x", newStructure.pos_x);
+                    structure.putInt("pos_y", newStructure.pos_y);
+                    structure.putInt("flip", newStructure.flip);
+                    structure.putInt("muted", newStructure.muted);
+                    structure.putInt("is_upgrading", newStructure.is_upgrading);
+                    structure.putInt("is_complete", newStructure.is_complete);
+                    structure.putLong("user_structure_id", newStructure.user_structure_id);
+                    structure.putLong("last_collection", newStructure.last_collection);
+                    structure.putInt("structure", newStructure.structure);
+                    structure.putDouble("scale", newStructure.scale);
+
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
+                    response.putSFSArray("properties", player.getProperties());
+                    response.putSFSObject("user_structure", structure);
+
+                    send("gs_move_structure", response, sender);
+                } else {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error move stricture");
+                }
+                break;
+            }
+            case "gs_flip_structure": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.flipStructure(user_structure_id);
+                if (newStructure != null) {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+
+                    SFSObject structure = new SFSObject();
+                    structure.putLong("island", player.active_island);
+                    structure.putInt("pos_x", newStructure.pos_x);
+                    structure.putInt("pos_y", newStructure.pos_y);
+                    structure.putInt("flip", newStructure.flip);
+                    structure.putInt("muted", newStructure.muted);
+                    structure.putInt("is_upgrading", newStructure.is_upgrading);
+                    structure.putInt("is_complete", newStructure.is_complete);
+                    structure.putLong("user_structure_id", newStructure.user_structure_id);
+                    structure.putLong("last_collection", newStructure.last_collection);
+                    structure.putInt("structure", newStructure.structure);
+                    structure.putDouble("scale", newStructure.scale);
+
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
+                    response.putSFSArray("properties", player.getProperties());
+                    response.putSFSObject("user_structure", structure);
+
+                    send("gs_flip_structure", response, sender);
+                } else {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error flip stricture");
+                }
+                break;
+            }
+            case "gs_sell_structure": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.sellStructure(user_structure_id) != null) {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSArray("properties", player.getProperties());
+
+                    send("gs_sell_structure", response, sender);
+                } else {
+                    SFSObject response = new SFSObject();
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error flip stricture");
                 }
                 break;
             }

@@ -4,6 +4,7 @@ import com.alexfu.sqlitequerybuilder.api.Column;
 import com.alexfu.sqlitequerybuilder.api.ColumnType;
 import com.alexfu.sqlitequerybuilder.api.SQLiteQueryBuilder;
 import com.smartfoxserver.v2.entities.data.SFSObject;
+import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
 import ru.msmhacks.muppets.managers.Utils;
 
 import java.sql.ResultSet;
@@ -89,7 +90,7 @@ public class PlayerStructure {
                 .column(new Column("user_island_id", ColumnType.INTEGER))
                 .column(new Column("pos_x", ColumnType.INTEGER))
                 .column(new Column("pos_y", ColumnType.INTEGER))
-                .column(new Column("pos_flip", ColumnType.INTEGER))
+                .column(new Column("flip", ColumnType.INTEGER))
                 .column(new Column("muted", ColumnType.INTEGER))
                 .column(new Column("is_complete", ColumnType.INTEGER))
                 .column(new Column("is_upgrading", ColumnType.INTEGER))
@@ -105,7 +106,7 @@ public class PlayerStructure {
     public void importToDB() throws SQLException {
         String sql = SQLiteQueryBuilder.insert()
                 .into("player_structures")
-                .columns("user_structure_id", "user_island_id", "pos_x", "pos_y", "pos_flip", "muted",
+                .columns("user_structure_id", "user_island_id", "pos_x", "pos_y", "flip", "muted",
                         "is_complete", "is_upgrading", "structure", "scale", "building_completed",
                         "date_created", "last_collection")
                 .values(this.user_structure_id, this.user_island_id, this.pos_x, this.pos_y, this.flip, this.muted,
@@ -132,7 +133,7 @@ public class PlayerStructure {
                 pi.user_island_id = rs.getLong("user_island_id");
                 pi.pos_x = rs.getInt("pos_x");
                 pi.pos_y = rs.getInt("pos_y");
-                pi.flip = rs.getInt("pos_flip");
+                pi.flip = rs.getInt("flip");
                 pi.muted = rs.getInt("muted");
                 pi.is_complete = rs.getInt("is_complete");
                 pi.is_upgrading = rs.getInt("is_upgrading");
@@ -203,5 +204,28 @@ public class PlayerStructure {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void moveStructure(long user_structure_id, int x, int y, float scale) {
+        getStructure(user_structure_id).pos_x = x;
+        getStructure(user_structure_id).pos_y = y;
+        getStructure(user_structure_id).scale = scale;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET pos_x = %s, pos_y = %s, scale = %s WHERE user_structure_id = %s;",
+                new Object[]{x, y, scale, user_structure_id});
+    }
+
+    public static void flipStructure(long user_structure_id) {
+        getStructure(user_structure_id).flip = getStructure(user_structure_id).flip==0?1:0;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET flip = %s WHERE user_structure_id = %s;",
+                new Object[]{getStructure(user_structure_id).flip, user_structure_id});
+    }
+
+    public static void removeStructure(long user_structure_id) {
+        structures.remove(user_structure_id);
+
+        PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",
+                new Object[]{user_structure_id});
     }
 }

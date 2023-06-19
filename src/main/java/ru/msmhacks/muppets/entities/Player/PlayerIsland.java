@@ -39,6 +39,8 @@ public class PlayerIsland {
         island.island = island_id;
         islands.put(island.user_island_id, island);
         try {island.importToDB();} catch (SQLException ignored) {}
+
+        PlayerStructure.createNewStructure(island.user_island_id, 1, 25, 25,0, 1.0F);
         return island;
     }
 

@@ -40,7 +40,7 @@ public class AuthServer {
         JSONObject response = new JSONObject();
 
         String[] login_data = AuthMethods.createNewAnonAccount(lang, client_version, mac_address,
-                platform, device_id, application_id);
+                platform, device_id, application_id, IP);
 
         username = login_data[0];
         password = login_data[1];

@@ -248,4 +248,35 @@ public class Player {
         }
         return null;
     }
+
+    public PlayerStructure moveStructure(long user_structure_id, int x, int y, float scale) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure.moveStructure(user_structure_id, x, y, scale);
+            return PlayerStructure.getStructure(user_structure_id);
+        }
+        return null;
+    }
+
+    public PlayerStructure flipStructure(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure.flipStructure(user_structure_id);
+            return PlayerStructure.getStructure(user_structure_id);
+        }
+        return null;
+    }
+
+    public Boolean sellStructure(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            Structure structure = Structure.structures_fastdb.get(PlayerStructure.getStructure(user_structure_id).structure);
+            if (structure.cost_diamonds != 0) {
+                addDiamonds(structure.cost_diamonds);
+            }
+            if (structure.cost_coins != 0) {
+                addCoins(structure.cost_coins);
+            }
+            PlayerStructure.removeStructure(user_structure_id);
+            return true;
+        }
+        return null;
+    }
 }
