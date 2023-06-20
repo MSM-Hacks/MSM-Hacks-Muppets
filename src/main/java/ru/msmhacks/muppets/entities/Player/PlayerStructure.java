@@ -4,6 +4,7 @@ import com.alexfu.sqlitequerybuilder.api.Column;
 import com.alexfu.sqlitequerybuilder.api.ColumnType;
 import com.alexfu.sqlitequerybuilder.api.SQLiteQueryBuilder;
 import com.smartfoxserver.v2.entities.data.SFSObject;
+import ru.msmhacks.muppets.entities.Structure;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
 import ru.msmhacks.muppets.managers.Utils;
 
@@ -45,6 +46,7 @@ public class PlayerStructure {
         structure.pos_y = y;
         structure.flip = flip;
         structure.scale = scale;
+        structure.date_created = System.currentTimeMillis();
 
         structures.put(structure.user_structure_id, structure);
         try {structure.importToDB();} catch (SQLException ignored) {}
@@ -216,10 +218,12 @@ public class PlayerStructure {
     }
     
     public static void flipStructure(long user_structure_id) {
-        getStructure(user_structure_id).flip = getStructure(user_structure_id).flip==0?1:0;
+        int flip = getStructure(user_structure_id).flip;
+        int newFlip = flip==0?1:0;
+        getStructure(user_structure_id).flip = newFlip;
 
         PlayerDatabaseManager.executeVoid("UPDATE player_structures SET flip = %s WHERE user_structure_id = %s;",
-                new Object[]{getStructure(user_structure_id).flip, user_structure_id});
+                new Object[]{newFlip, user_structure_id});
     }
 
     public static void removeStructure(long user_structure_id) {
@@ -227,5 +231,18 @@ public class PlayerStructure {
 
         PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",
                 new Object[]{user_structure_id});
+    }
+
+    public static boolean startUpgradingStructure(long user_structure_id) {
+        PlayerStructure playerStructure = getStructure(user_structure_id);
+        Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
+
+        if (oldStructure.upgrades_to == 0 || playerStructure.is_upgrading == 1) {return false;}
+
+        Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
+        return true;
+
+        //PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",
+        //        new Object[]{user_structure_id});
     }
 }

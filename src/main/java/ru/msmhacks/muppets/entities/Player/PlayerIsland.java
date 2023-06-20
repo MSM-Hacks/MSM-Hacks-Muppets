@@ -33,14 +33,16 @@ public class PlayerIsland {
 
     public static PlayerIsland createNewIsland(int bbb_id, int island_id) {
         Utils.log("Creating new island");
+
         PlayerIsland island = new PlayerIsland();
         island.user = bbb_id;
         island.user_island_id = islands.size();
         island.island = island_id;
         islands.put(island.user_island_id, island);
-        try {island.importToDB();} catch (SQLException ignored) {}
 
-        PlayerStructure.createNewStructure(island.user_island_id, 1, 25, 25,0, 1.0F);
+        island.fillIsland();
+
+        try {island.importToDB();} catch (SQLException ignored) {}
         return island;
     }
 
@@ -50,7 +52,6 @@ public class PlayerIsland {
         }
         return null;
     }
-
     public SFSObject toSFSObject() {
         SFSObject island = new SFSObject();
 
@@ -76,7 +77,6 @@ public class PlayerIsland {
 
         return island;
     }
-
     public static void dropPlayerIslandsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS player_islands");
         String sql = SQLiteQueryBuilder.create()
@@ -94,7 +94,6 @@ public class PlayerIsland {
                 .toString();
         stmt.executeUpdate(sql);
     }
-
     public void importToDB() throws SQLException {
         String sql = SQLiteQueryBuilder.insert()
                 .into("player_islands")
@@ -106,7 +105,6 @@ public class PlayerIsland {
 
         stmt.executeUpdate(sql);
     }
-
     public static void initPlayerIslandsDatabase() {
         islands = new HashMap<>();
 
@@ -132,7 +130,6 @@ public class PlayerIsland {
             }
         } catch (SQLException e) {}
     }
-
     public static PlayerIsland[] getPlayerIslands(long bbb_id) {
         String sql = SQLiteQueryBuilder.select("*")
                 .from("player_islands")
@@ -159,7 +156,6 @@ public class PlayerIsland {
         }
 
     }
-
     public static boolean isPlayerHasIsland(long bbb_id, long user_island_id) {
         String sql = SQLiteQueryBuilder.select("*")
                 .from("player_islands")
@@ -174,7 +170,6 @@ public class PlayerIsland {
             throw new RuntimeException(e);
         }
     }
-
     public static boolean isPlayerHasIslandType(long bbb_id, int island_id) {
         String sql = SQLiteQueryBuilder.select("*")
                 .from("player_islands")
@@ -187,6 +182,26 @@ public class PlayerIsland {
             return rs.next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void fillIsland() {
+        switch (island) {
+            case 1:
+                PlayerStructure.createNewStructure(user_island_id, 1, 10, 20,0, 1.0F);
+                break;
+            case 2:
+                PlayerStructure.createNewStructure(user_island_id, 1, 10, 10,0, 1.0F);
+                break;
+            case 3:
+                PlayerStructure.createNewStructure(user_island_id, 1, 18, 15,0, 1.0F);
+                break;
+            case 4:
+                PlayerStructure.createNewStructure(user_island_id, 1, 18, 31,0, 1.0F);
+                break;
+            case 5:
+                PlayerStructure.createNewStructure(user_island_id, 1, 39, 23,1, 1.0F);
+                break;
         }
     }
 }

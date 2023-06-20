@@ -208,11 +208,26 @@ public class Player {
         }
     }
 
+    public boolean addBalances(int coins, int diamonds, int food, int xp, boolean checkOnly) {
+        if (this.diamonds + diamonds < 0) return false;
+        if (this.coins + coins < 0) return false;
+        if (this.food + food < 0) return false;
+        if (this.xp + xp < 0) return false;
+
+        if (!checkOnly) {
+            addDiamonds(diamonds);
+            addCoins(coins);
+            addFood(food);
+        }
+
+        return true;
+    }
+
     public long buyIsland(int island_id) {
         Island island = Island.getIslandByID(island_id);
         if (PlayerIsland.isPlayerHasIslandType(bbb_id, island_id))
             return -1;
-        if (addCoins(island.cost_coins*-1)) {
+        if (addBalances(island.cost_coins*-1, island.cost_diamonds*-1, 0, 0, false)) {
             PlayerIsland playerIsland = PlayerIsland.createNewIsland(bbb_id, island_id);
             return playerIsland.user_island_id;
         }
@@ -231,20 +246,13 @@ public class Player {
 
     public PlayerStructure buyStructure(int structure_id, int x, int y, int flip, float scale) {
         Structure structure = Structure.getStructureByID(structure_id);
-        if (structure.cost_coins != 0) {
-            if (addCoins(structure.cost_coins * -1)) {
-                PlayerStructure playerStructure = PlayerStructure.createNewStructure(active_island, structure_id, x, y, flip, scale);
-                return playerStructure;
-            }
-        } else {
-            if (structure.cost_diamonds != 0) {
-                if (addDiamonds(structure.cost_diamonds * -1)) {
-                    PlayerStructure playerStructure = PlayerStructure.createNewStructure(active_island, structure_id, x, y, flip, scale);
-                    return playerStructure;
-                }
-            } else {
-                return null;
-            }
+
+        if (structure.structure_type != "decoration" && PlayerStructure.isIslandHasStructure(active_island, structure_id)) {
+            return null;
+        }
+        if (addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, structure.xp, false)) {
+            PlayerStructure playerStructure = PlayerStructure.createNewStructure(active_island, structure_id, x, y, flip, scale);
+            return playerStructure;
         }
         return null;
     }
@@ -268,12 +276,7 @@ public class Player {
     public Boolean sellStructure(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             Structure structure = Structure.structures_fastdb.get(PlayerStructure.getStructure(user_structure_id).structure);
-            if (structure.cost_diamonds != 0) {
-                addDiamonds(structure.cost_diamonds);
-            }
-            if (structure.cost_coins != 0) {
-                addCoins(structure.cost_coins);
-            }
+            addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, 0, false);
             PlayerStructure.removeStructure(user_structure_id);
             return true;
         }

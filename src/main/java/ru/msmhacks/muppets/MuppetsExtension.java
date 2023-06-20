@@ -28,8 +28,8 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    //public static String ROOT = "C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
-    public static String ROOT = "/root/server/mms/";
+    public static String ROOT = "C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
+    //public static String ROOT = "/root/server/mms/";
     public static String DBROOT = ROOT;//"/home/uberbot/mms_dbs/";
 
     @Override
@@ -38,7 +38,7 @@ public class MuppetsExtension extends SFSExtension {
         addEventListener(SFSEventType.USER_JOIN_ZONE, new PlayerJoinListener());
 
         try {
-            runAuthServer(80, "5.175.225.81");
+            runAuthServer(80, "192.168.0.100");
             StaticDatabaseManager.initAllDatabases(false);
             PlayerDatabaseManager.initAllDatabases(true);
         } catch (Exception e) {
@@ -116,55 +116,45 @@ public class MuppetsExtension extends SFSExtension {
                 break;
             case "gs_change_island": {
                 long user_island_id = params.getLong("user_island_id");
+                SFSObject response = new SFSObject();
 
                 if (player.changeIsland(user_island_id)) {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", true);
                     response.putLong("user_island_id", user_island_id);
 
                     SFSObject hidden_objects = new SFSObject();
                     hidden_objects.putSFSArray("objects", new SFSArray());
                     response.putSFSObject("hidden_objects", hidden_objects);
-
-                    send("gs_change_island", response, sender);
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "User don't have this island");
-
-                    send("gs_change_island", response, sender);
                 }
+                send("gs_change_island", response, sender);
                 break;
             }
             case "gs_buy_island": {
                 int island_id = params.getInt("island_id");
+                SFSObject response = new SFSObject();
 
                 if (!PlayerIsland.isPlayerHasIslandType(Long.parseLong(bbb_id), island_id)) {
                     long user_island_id = player.buyIsland(island_id);
                     if (user_island_id != -1) {
                         SFSObject new_island = PlayerIsland.getIsland(user_island_id).toSFSObject();
 
-                        SFSObject response = new SFSObject();
                         response.putBool("success", true);
                         response.putSFSObject("user_island", new_island);
                         response.putSFSArray("properties", player.getProperties());
 
                         send("gs_buy_island", response, sender);
                     } else {
-                        SFSObject response = new SFSObject();
                         response.putBool("success", false);
                         response.putUtfString("message", "Error buying island");
-
-                        send("gs_buy_island", response, sender);
-
                     }
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "User already have this island");
-
-                    send("gs_buy_island", response, sender);
                 }
+                send("gs_buy_island", response, sender);
                 break;
             }
             case "gs_buy_structure": {
@@ -173,10 +163,10 @@ public class MuppetsExtension extends SFSExtension {
                 int flip = params.getInt("flip");
                 float scale = params.getDouble("scale").floatValue();
                 int structure_id = params.getInt("structure_id");
+                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.buyStructure(structure_id, x, y, flip, scale);
                 if (newStructure != null) {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", true);
 
                     SFSObject structure = new SFSObject();
@@ -195,13 +185,11 @@ public class MuppetsExtension extends SFSExtension {
                     response.putSFSArray("monster_happy_effects", new SFSArray());
                     response.putSFSArray("properties", player.getProperties());
                     response.putSFSObject("user_structure", structure);
-
-                    send("gs_buy_structure", response, sender);
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "Error buying stricture");
                 }
+                send("gs_buy_structure", response, sender);
                 break;
             }
             case "gs_move_structure": {
@@ -209,10 +197,10 @@ public class MuppetsExtension extends SFSExtension {
                 int y = params.getInt("pos_y");
                 float scale = params.getDouble("scale").floatValue();
                 long user_structure_id = params.getLong("user_structure_id");
+                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.moveStructure(user_structure_id, x, y, scale);
                 if (newStructure != null) {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
 
@@ -228,25 +216,37 @@ public class MuppetsExtension extends SFSExtension {
                     structure.putLong("last_collection", newStructure.last_collection);
                     structure.putInt("structure", newStructure.structure);
                     structure.putDouble("scale", newStructure.scale);
-
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
-                    response.putSFSArray("properties", player.getProperties());
                     response.putSFSObject("user_structure", structure);
 
-                    send("gs_move_structure", response, sender);
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("pos_x", newStructure.pos_x);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("pos_y", newStructure.pos_y);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putDouble("scale", newStructure.scale);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "Error move stricture");
                 }
+                send("gs_move_structure", response, sender);
                 break;
             }
             case "gs_flip_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
+                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.flipStructure(user_structure_id);
                 if (newStructure != null) {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
 
@@ -263,33 +263,76 @@ public class MuppetsExtension extends SFSExtension {
                     structure.putInt("structure", newStructure.structure);
                     structure.putDouble("scale", newStructure.scale);
 
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
-                    response.putSFSArray("properties", player.getProperties());
                     response.putSFSObject("user_structure", structure);
 
-                    send("gs_flip_structure", response, sender);
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("flip", newStructure.flip);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
+
+                    send("gs_flip_structure", SFSObject.newFromJsonData("{\"\"success\"\":true}"), sender);
+                    send("gs_update_structure", response, sender);
+                    break;
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "Error flip stricture");
                 }
+                send("gs_flip_structure", response, sender);
                 break;
             }
             case "gs_sell_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
+                SFSObject response = new SFSObject();
 
                 if (player.sellStructure(user_structure_id) != null) {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
                     response.putSFSArray("properties", player.getProperties());
-
-                    send("gs_sell_structure", response, sender);
                 } else {
-                    SFSObject response = new SFSObject();
                     response.putBool("success", false);
                     response.putUtfString("message", "Error flip stricture");
                 }
+                send("gs_sell_structure", response, sender);
+                break;
+            }
+            case "gs_start_upgrade_structure": {
+                long user_structure_id = params.getLong("user_structure_id");
+                SFSObject response = new SFSObject();
+
+                if (player.sellStructure(user_structure_id) != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("is_complete", 0);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("is_upgrading", 1);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putDouble("date_created", System.currentTimeMillis());
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putDouble("building_completed", System.currentTimeMillis());
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error upgrading stricture");
+                }
+                send("gs_update_structure", response, sender);
+                //send("gs_start_upgrade_structure", response, sender);
                 break;
             }
             case "gs_get_random_visit_data": {
@@ -303,7 +346,7 @@ public class MuppetsExtension extends SFSExtension {
                 response.putBool("success", true);
                 response.putSFSArray("properties", player.getProperties());
 
-                send("gs_referral_request", response, sender);
+                send("gs_update_properties", response, sender);
                 break;
             }
             case "gs_request_backdrop_change": {
