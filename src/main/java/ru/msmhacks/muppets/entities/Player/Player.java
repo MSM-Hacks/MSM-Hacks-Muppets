@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import static ru.msmhacks.muppets.entities.Player.PlayerStructure.*;
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
 
 public class Player {
@@ -260,7 +261,7 @@ public class Player {
     public PlayerStructure moveStructure(long user_structure_id, int x, int y, float scale) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure.moveStructure(user_structure_id, x, y, scale);
-            return PlayerStructure.getStructure(user_structure_id);
+            return getStructure(user_structure_id);
         }
         return null;
     }
@@ -268,17 +269,33 @@ public class Player {
     public PlayerStructure flipStructure(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure.flipStructure(user_structure_id);
-            return PlayerStructure.getStructure(user_structure_id);
+            return getStructure(user_structure_id);
         }
         return null;
     }
 
     public Boolean sellStructure(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
-            Structure structure = Structure.structures_fastdb.get(PlayerStructure.getStructure(user_structure_id).structure);
+            Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
             addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, 0, false);
             PlayerStructure.removeStructure(user_structure_id);
             return true;
+        }
+        return null;
+    }
+
+    public PlayerStructure upgradeStructure(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = getStructure(user_structure_id);
+            Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
+
+            if (oldStructure.upgrades_to == 0 || playerStructure.is_upgrading == 1) {return null;}
+            Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
+
+            if (addBalances(newStructure.cost_coins, newStructure.cost_diamonds, 0, 0, false)) {
+                startUpgradingStructure(user_structure_id);
+                return playerStructure;
+            }
         }
         return null;
     }

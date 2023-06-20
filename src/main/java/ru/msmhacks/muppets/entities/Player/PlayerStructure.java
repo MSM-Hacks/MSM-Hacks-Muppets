@@ -238,8 +238,17 @@ public class PlayerStructure {
         Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
 
         if (oldStructure.upgrades_to == 0 || playerStructure.is_upgrading == 1) {return false;}
-
         Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
+
+        playerStructure.is_upgrading = 1;
+        playerStructure.is_complete = 0;
+        playerStructure.date_created = System.currentTimeMillis();
+        playerStructure.building_completed = System.currentTimeMillis() + newStructure.build_time;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET is_upgrading = 1, is_complete = 0, date_created = %s," +
+                        "building_completed = %s WHERE user_structure_id = %s;",
+                new Object[]{playerStructure.date_created, playerStructure.building_completed, user_structure_id});
+
         return true;
 
         //PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",

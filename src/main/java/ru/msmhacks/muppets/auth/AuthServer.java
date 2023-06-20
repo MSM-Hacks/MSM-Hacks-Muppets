@@ -5,6 +5,7 @@ import flak.App;
 import flak.Flak;
 import flak.Query;
 import flak.Request;
+import flak.annotations.Post;
 import flak.annotations.Route;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ public class AuthServer {
     public String auth(Request req) {
         Query q = req.getQuery();
         String IP = req.getRemoteAddress().getHostString();
-        MuppetsExtension.extension.trace("GET /auth.php: " + q.parameters());
+        System.out.println("GET /auth.php: " + q.parameters());
 
         String username = q.get("u");
         String password = q.get("p");
@@ -64,7 +65,7 @@ public class AuthServer {
 
     @Route("/content/:ver/files.json")
     public String get_updates(Query q, String ver) {
-        MuppetsExtension.extension.trace("GET /content/" + ver + "/files.json: " + q.parameters());
+        System.out.println("GET /content/" + ver + "/files.json: " + q.parameters());
 
         JSONArray response = new JSONArray();
         //TODO: make updates
@@ -72,9 +73,20 @@ public class AuthServer {
         return response.toString();
     }
 
+    @Post
+    @Route("/content/getFile.php")
+    public String get_file(Query q) {
+        System.out.println("GET /content/getFile.php: " + q.parameters());
+
+        JSONArray response = new JSONArray();
+        //TODO: make updates
+
+        return "";
+    }
+
     @Route("/check_user.php")
     public String check_user(Query q) {
-        MuppetsExtension.extension.trace("GET /check_user.php: " + q.parameters());
+        System.out.println("GET /check_user.php: " + q.parameters());
 
         String username = q.get("u");
         String password = q.get("p");
@@ -90,8 +102,6 @@ public class AuthServer {
         }
         return response.toString();
     }
-
-
 
     public static void runAuthServer(int port, String game_server_ip) throws Exception {
         AuthServer.game_server_ip = game_server_ip;

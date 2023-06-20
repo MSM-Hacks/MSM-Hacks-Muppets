@@ -193,7 +193,7 @@ public class Structure {
                 s.graphic = (SFSObject) SFSObject.newFromJsonData(rs.getString("graphic"));
                 s.extra = (SFSObject) SFSObject.newFromJsonData(rs.getString("extra"));
                 s.requirements = (SFSArray) SFSArray.newFromJsonData(rs.getString("requirements"));
-                s.upgrades_to = rs.getInt("upgrades_to");
+                s.upgrades_to = 0;//rs.getInt("upgrades_to");
                 structures_fastdb.put(s.structure_id, s);
 
                 st_list.addSFSObject(s.toSFSObject());

@@ -21,7 +21,7 @@ public class DatabaseManager {
 
             System.out.println("Opened database successfully");
 
-            //stmt.executeUpdate("DROP TABLE users");
+            stmt.executeUpdate("DROP TABLE users");
 
 
             String sql = SQLiteQueryBuilder.create()
