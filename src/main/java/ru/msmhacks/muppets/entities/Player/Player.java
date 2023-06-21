@@ -7,6 +7,7 @@ import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import ru.msmhacks.muppets.MuppetsExtension;
 import ru.msmhacks.muppets.entities.Island;
+import ru.msmhacks.muppets.entities.Level;
 import ru.msmhacks.muppets.entities.Monster;
 import ru.msmhacks.muppets.entities.Structure;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
@@ -97,6 +98,23 @@ public class Player {
 
     public static void dropPlayersDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS players");
+    }
+
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("players")
+                .columns("coins", "diamonds", "food", "xp", "level", "bbb_id", "user_id",
+                        "daily_reward_level", "active_island", "display_name")
+                .values(this.coins, this.diamonds, this.food, this.xp, this.level, this.bbb_id, this.player_id,
+                        this.daily_reward_level, this.active_island, this.display_name)
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+
+    public static void initPlayersDatabase() throws SQLException {
+        players = new HashMap<>();
+
         String sql = SQLiteQueryBuilder.create()
                 .table("players")
                 .ifNotExists()
@@ -112,24 +130,8 @@ public class Player {
                 .column(new Column("display_name", ColumnType.TEXT))
                 .toString();
         stmt.executeUpdate(sql);
-    }
 
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("players")
-                .columns("coins", "diamonds", "food", "xp", "level", "bbb_id", "user_id",
-                        "daily_reward_level", "active_island", "display_name")
-                .values(this.coins, this.diamonds, this.food, this.xp, this.level, this.bbb_id, this.player_id,
-                        this.daily_reward_level, this.active_island, this.display_name)
-                .build();
-
-        stmt.executeUpdate(sql);
-    }
-
-    public static void initPlayersDatabase() {
-        players = new HashMap<>();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("players")
                 .build();
         ResultSet rs = null;
@@ -192,7 +194,7 @@ public class Player {
     public boolean addFood(int delta) {
         if (food+delta>0) {
             food += delta;
-            PlayerDatabaseManager.executeVoid("UPDATE players SET food = %s WHERE user_id = %s;", new Object[]{coins, player_id});
+            PlayerDatabaseManager.executeVoid("UPDATE players SET food = %s WHERE user_id = %s;", new Object[]{food, player_id});
             return true;
         } else {
             return false;
@@ -202,7 +204,27 @@ public class Player {
     public boolean addDiamonds(int delta) {
         if (diamonds+delta>0) {
             diamonds += delta;
-            PlayerDatabaseManager.executeVoid("UPDATE players SET diamonds = %s WHERE user_id = %s;", new Object[]{coins, player_id});
+            PlayerDatabaseManager.executeVoid("UPDATE players SET diamonds = %s WHERE user_id = %s;", new Object[]{diamonds, player_id});
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean addXp(int delta) {
+        if (xp+delta>0) {
+            xp += delta;
+            Level maxLvl = Level.getLevelByID(1);
+            for (Level lvl: Level.levels_fastdb.values()) {
+                if (xp > lvl.xp && lvl.level > maxLvl.level) {
+                    maxLvl = lvl;
+                }
+            }
+            if (maxLvl.level > level) {
+                addDiamonds(maxLvl.diamond_reward);
+            }
+            level = maxLvl.level;
+            PlayerDatabaseManager.executeVoid("UPDATE players SET xp = %s, level = %s WHERE user_id = %s;", new Object[]{xp, level, player_id});
             return true;
         } else {
             return false;
@@ -219,6 +241,7 @@ public class Player {
             addDiamonds(diamonds);
             addCoins(coins);
             addFood(food);
+            addXp(xp);
         }
 
         return true;
@@ -277,9 +300,23 @@ public class Player {
     public Boolean sellStructure(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
-            addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, 0, false);
-            PlayerStructure.removeStructure(user_structure_id);
-            return true;
+            if (getStructure(user_structure_id).is_complete==1) {
+                addBalances(structure.cost_coins * -1, structure.cost_diamonds * -1, 0, 0, false);
+                PlayerStructure.removeStructure(user_structure_id);
+                return true;
+            }
+        }
+        return null;
+    }
+
+    public Boolean clearObstacle(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
+            if (true) {
+                addBalances(0, 0, 0, structure.xp, false);
+                PlayerStructure.removeStructure(user_structure_id);
+                return true;
+            }
         }
         return null;
     }

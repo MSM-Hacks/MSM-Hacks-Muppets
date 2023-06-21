@@ -50,19 +50,6 @@ public class BreedingCombination {
 
     public static void dropBreedingDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS breeding");
-
-        String sql = SQLiteQueryBuilder.create()
-                .table("breeding")
-                .ifNotExists()
-                .column(new Column("breeding_combination_id", ColumnType.INTEGER))
-                .column(new Column("monster_1", ColumnType.INTEGER))
-                .column(new Column("monster_2", ColumnType.INTEGER))
-                .column(new Column("result", ColumnType.INTEGER))
-                .column(new Column("modifier", ColumnType.REAL))
-                .column(new Column("probability", ColumnType.INTEGER))
-                .toString();
-
-        stmt.executeUpdate(sql);
     }
 
     public void importToDB() throws SQLException {
@@ -80,11 +67,24 @@ public class BreedingCombination {
         return breeding_fastdb.get(comb);
     }
 
-    public static void initBreedingDatabase() {
+    public static void initBreedingDatabase() throws SQLException {
         breeding_fastdb = new HashMap<>();
         SFSArray comb_list = new SFSArray();
 
-        String sql = SQLiteQueryBuilder.select("*")
+        String sql = SQLiteQueryBuilder.create()
+                .table("breeding")
+                .ifNotExists()
+                .column(new Column("breeding_combination_id", ColumnType.INTEGER))
+                .column(new Column("monster_1", ColumnType.INTEGER))
+                .column(new Column("monster_2", ColumnType.INTEGER))
+                .column(new Column("result", ColumnType.INTEGER))
+                .column(new Column("modifier", ColumnType.REAL))
+                .column(new Column("probability", ColumnType.INTEGER))
+                .toString();
+
+        stmt.executeUpdate(sql);
+
+        sql = SQLiteQueryBuilder.select("*")
                 .from("breeding")
                 .build();
         ResultSet rs = null;

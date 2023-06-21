@@ -69,23 +69,6 @@ public class Backdrop {
 
     public static void dropBackdropsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS backdrops");
-
-        String sql = SQLiteQueryBuilder.create()
-                .table("backdrops")
-                .ifNotExists()
-                .column(new Column("backdrop_id", ColumnType.INTEGER))
-                .column(new Column("cost_coins", ColumnType.INTEGER))
-                .column(new Column("cost_diamonds", ColumnType.INTEGER))
-                .column(new Column("level", ColumnType.INTEGER))
-                .column(new Column("initial", ColumnType.INTEGER))
-                .column(new Column("island_id", ColumnType.INTEGER))
-                .column(new Column("view_in_market", ColumnType.INTEGER))
-                .column(new Column("graphic", ColumnType.TEXT))
-                .column(new Column("name", ColumnType.TEXT))
-                .column(new Column("description", ColumnType.TEXT))
-                .toString();
-
-        stmt.executeUpdate(sql);
     }
 
     public void importToDB() throws SQLException {
@@ -104,11 +87,28 @@ public class Backdrop {
         return backdrops_fastdb.get(backdrop_id);
     }
 
-    public static void initBackdropsDatabase() {
+    public static void initBackdropsDatabase() throws SQLException {
         backdrops_fastdb = new HashMap<>();
         SFSArray backdrop_list = new SFSArray();
 
-        String sql = SQLiteQueryBuilder.select("*")
+        String sql = SQLiteQueryBuilder.create()
+                .table("backdrops")
+                .ifNotExists()
+                .column(new Column("backdrop_id", ColumnType.INTEGER))
+                .column(new Column("cost_coins", ColumnType.INTEGER))
+                .column(new Column("cost_diamonds", ColumnType.INTEGER))
+                .column(new Column("level", ColumnType.INTEGER))
+                .column(new Column("initial", ColumnType.INTEGER))
+                .column(new Column("island_id", ColumnType.INTEGER))
+                .column(new Column("view_in_market", ColumnType.INTEGER))
+                .column(new Column("graphic", ColumnType.TEXT))
+                .column(new Column("name", ColumnType.TEXT))
+                .column(new Column("description", ColumnType.TEXT))
+                .toString();
+
+        stmt.executeUpdate(sql);
+
+        sql = SQLiteQueryBuilder.select("*")
                 .from("backdrops")
                 .build();
         ResultSet rs = null;

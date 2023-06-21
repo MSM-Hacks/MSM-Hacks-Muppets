@@ -40,7 +40,7 @@ public class MuppetsExtension extends SFSExtension {
         try {
             runAuthServer(80, "192.168.0.100");
             StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(true);
+            PlayerDatabaseManager.initAllDatabases(false);
         } catch (Exception e) {
             trace(e.getStackTrace());
         }
@@ -75,62 +75,83 @@ public class MuppetsExtension extends SFSExtension {
         Player player = (Player) sender.getProperty("player");
         trace(String.format("New request from %s: %s\n%s", user_id, cmd, params.getDump()));
 
+        SFSObject response = new SFSObject();
+        response.putLong("server_time", System.currentTimeMillis());
+
 
         switch (cmd) {
             //Databases
             case "db_monster": {
-                send("db_monster", Monster.monsters_list, sender);
+                response = Monster.monsters_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_monster", response, sender);
                 break;
             }
             case "db_structure": {
-                send("db_structure", Structure.structures_list, sender);
+                response = Structure.structures_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_structure", response, sender);
                 break;
             }
             case "db_island": {
-                send("db_island", Island.islands_list, sender);
+                response = Island.islands_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_island", response, sender);
                 break;
             }
             case "db_level": {
-                send("db_level", Level.levels_list, sender);
+                response = Level.levels_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_level", response, sender);
                 break;
             }
             case "db_breeding": {
-                send("db_breeding", BreedingCombination.breeding_list, sender);
+                response = BreedingCombination.breeding_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_breeding", response, sender);
                 break;
             }
             case "db_lighting": {
-                send("db_lighting", Light.lights_list, sender);
+                response = Light.lights_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_lighting", response, sender);
                 break;
             }
             case "db_backdrops": {
-                send("db_backdrops", Backdrop.backdrops_list, sender);
+                response = Backdrop.backdrops_list;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("db_backdrops", response, sender);
                 break;
             }
             case "db_store": {
-                SFSObject storeObject = new SFSObject();
-                storeObject.putSFSArray("store_item_data", new SFSArray());
-                storeObject.putSFSArray("store_group_data", new SFSArray());
-                storeObject.putSFSArray("store_currency_data", new SFSArray());
-                send("db_store", storeObject, sender);
+                response.putSFSArray("store_item_data", new SFSArray());
+                response.putSFSArray("store_group_data", new SFSArray());
+                response.putSFSArray("store_currency_data", new SFSArray());
+                send("db_store", response, sender);
                 break;
             }
             //Player datas
             case "gs_quest": {
-                send("gs_quest", Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "quest_data.json")), sender);
+                response = Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "quest_data.json"));
+                response.putLong("server_time", System.currentTimeMillis());
+                send("gs_quest", response, sender);
                 break;
             }
             case "gs_player": {
-                send("gs_player", player.toSFSObject(), sender);
+                response = player.toSFSObject();
+                response.putLong("server_time", System.currentTimeMillis());
+                send("gs_player", response, sender);
                 break;
             }
             case "keep_alive": {
-                send("keep_alive", params, sender);
+                response = (SFSObject) params;
+                response.putLong("server_time", System.currentTimeMillis());
+                send("keep_alive", response, sender);
                 break;
             }
             //Islands
             case "gs_change_island": {
                 long user_island_id = params.getLong("user_island_id");
-                SFSObject response = new SFSObject();
 
                 if (player.changeIsland(user_island_id)) {
                     response.putBool("success", true);
@@ -148,7 +169,6 @@ public class MuppetsExtension extends SFSExtension {
             }
             case "gs_buy_island": {
                 int island_id = params.getInt("island_id");
-                SFSObject response = new SFSObject();
 
                 if (!PlayerIsland.isPlayerHasIslandType(Long.parseLong(bbb_id), island_id)) {
                     long user_island_id = player.buyIsland(island_id);
@@ -178,7 +198,6 @@ public class MuppetsExtension extends SFSExtension {
                 int flip = params.getInt("flip");
                 float scale = params.getDouble("scale").floatValue();
                 int structure_id = params.getInt("structure_id");
-                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.buyStructure(structure_id, x, y, flip, scale);
                 if (newStructure != null) {
@@ -212,7 +231,6 @@ public class MuppetsExtension extends SFSExtension {
                 int y = params.getInt("pos_y");
                 float scale = params.getDouble("scale").floatValue();
                 long user_structure_id = params.getLong("user_structure_id");
-                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.moveStructure(user_structure_id, x, y, scale);
                 if (newStructure != null) {
@@ -258,7 +276,6 @@ public class MuppetsExtension extends SFSExtension {
             }
             case "gs_flip_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
-                SFSObject response = new SFSObject();
 
                 PlayerStructure newStructure = player.flipStructure(user_structure_id);
                 if (newStructure != null) {
@@ -301,7 +318,6 @@ public class MuppetsExtension extends SFSExtension {
             }
             case "gs_sell_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
-                SFSObject response = new SFSObject();
 
                 if (player.sellStructure(user_structure_id) != null) {
                     response.putBool("success", true);
@@ -309,14 +325,27 @@ public class MuppetsExtension extends SFSExtension {
                     response.putSFSArray("properties", player.getProperties());
                 } else {
                     response.putBool("success", false);
-                    response.putUtfString("message", "Error flip stricture");
+                    response.putUtfString("message", "Error sell stricture");
                 }
                 send("gs_sell_structure", response, sender);
                 break;
             }
+            case "gs_clear_obstacle": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.clearObstacle(user_structure_id) != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSArray("properties", player.getProperties());
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error clear obstacle");
+                }
+                send("gs_clear_obstacle", response, sender);
+                break;
+            }
             case "gs_start_upgrade_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
-                SFSObject response = new SFSObject();
 
                 PlayerStructure structure = player.upgradeStructure(user_structure_id);
                 if (structure != null) {
@@ -359,7 +388,6 @@ public class MuppetsExtension extends SFSExtension {
                 player.level = 100;
                 player.xp = 999999999;
 
-                SFSObject response = new SFSObject();
                 response.putBool("success", true);
                 response.putSFSArray("properties", player.getProperties());
 
@@ -368,7 +396,6 @@ public class MuppetsExtension extends SFSExtension {
             }
             //Backdrops | Lightings
             case "gs_request_backdrop_change": {
-                SFSObject response = new SFSObject();
                 response.putBool("success", true);
                 response.putInt("backdrop_id", params.getInt("backdrop_id"));
                 response.putBool("purshared", true);
@@ -378,8 +405,6 @@ public class MuppetsExtension extends SFSExtension {
                 break;
             }
             case "gs_request_lighting_change": {
-
-                SFSObject response = new SFSObject();
                 response.putBool("success", true);
                 response.putInt("lighting_id", params.getInt("lighting_id"));
                 response.putBool("purshared", true);
@@ -390,7 +415,17 @@ public class MuppetsExtension extends SFSExtension {
             }
             //Breeding | Hatching | Eggs
             case "gs_buy_egg": {
+                int monster_id = params.getInt("monster_id");
 
+                SFSObject egg = new SFSObject();
+                egg.putLong("obj_end", System.currentTimeMillis() + Monster.getMonsterByID(monster_id).build_time*1000);
+                egg.putInt("obj_data", monster_id);
+
+                response.putSFSObject("user_egg", egg);
+                response.putSFSArray("properties", player.getProperties());
+                response.putBool("success", true);
+                response.putBool("remove_buyback", false);
+                send("gs_buy_egg", response, sender);
             }
             default:
                 params.putBool("success", false);

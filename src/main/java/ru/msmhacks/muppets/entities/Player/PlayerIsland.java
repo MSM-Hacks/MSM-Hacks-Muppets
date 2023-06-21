@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
+import static ru.msmhacks.muppets.managers.Utils.randInt;
 
 public class PlayerIsland {
     public static HashMap<Long, PlayerIsland> islands = new HashMap<>();
@@ -79,6 +80,21 @@ public class PlayerIsland {
     }
     public static void dropPlayerIslandsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS player_islands");
+    }
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("player_islands")
+                .columns("user_island_id", "user", "upgrading_until", "upgrade_started", "likes", "level",
+                        "backdrop_id", "lighting_id", "island")
+                .values(this.user_island_id, this.user, this.upgrading_until, this.upgrade_started, this.likes, this.level,
+                        this.backdrop_id, this.lighting_id, this.island)
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+    public static void initPlayerIslandsDatabase() throws SQLException {
+        islands = new HashMap<>();
+
         String sql = SQLiteQueryBuilder.create()
                 .table("player_islands")
                 .ifNotExists()
@@ -93,22 +109,8 @@ public class PlayerIsland {
                 .column(new Column("island", ColumnType.INTEGER))
                 .toString();
         stmt.executeUpdate(sql);
-    }
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("player_islands")
-                .columns("user_island_id", "user", "upgrading_until", "upgrade_started", "likes", "level",
-                        "backdrop_id", "lighting_id", "island")
-                .values(this.user_island_id, this.user, this.upgrading_until, this.upgrade_started, this.likes, this.level,
-                        this.backdrop_id, this.lighting_id, this.island)
-                .build();
 
-        stmt.executeUpdate(sql);
-    }
-    public static void initPlayerIslandsDatabase() {
-        islands = new HashMap<>();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("player_islands")
                 .build();
         ResultSet rs = null;
@@ -186,22 +188,106 @@ public class PlayerIsland {
     }
 
     public void fillIsland() {
+        int[][] places_3;
+        int[][] places_2;
+        int[][] places_1;
+
+        int[] objects_3;
+        int[] objects_2;
+        int[] objects_1;
+
+        int[] nursery;
+
         switch (island) {
-            case 1:
-                PlayerStructure.createNewStructure(user_island_id, 1, 10, 20,0, 1.0F);
+            case 1: {
+                places_3 = new int[][]{{35,27},{31,27},{39,22},{39,19},{45,16},{34,4},{34,10},{31,10},{28,10}};
+                places_2 = new int[][]{{41,11},{38,24},{45,13},{40,15},{38,13},{38,9},{32,4},{25,11},{22,15},{26,25}};
+                places_1 = new int[][]{{33,24},{37,22},{38,22},{36,28},{33,28},{46,17},{41,9},{38,11},{40,13},{38,15},{39,16},{36,11},{37,7},{37,4},{34,1},{28,7},{22,12},{27,11},{30,11},{25,14},{27,8},{26,9},{36,7},{28,17},{35,19},{42,21}};
+
+                objects_3 = new int[]{200, 206, 199, 203, 204, 205};
+                objects_2 = new int[]{202};
+                objects_1 = new int[]{205, 201};
+
+                nursery = new int[]{10, 20};
                 break;
-            case 2:
-                PlayerStructure.createNewStructure(user_island_id, 1, 10, 10,0, 1.0F);
+            }
+            case 2: {
+                places_3 = new int[][]{};
+                places_2 = new int[][]{};
+                places_1 = new int[][]{};
+
+                objects_3 = new int[]{};
+                objects_2 = new int[]{};
+                objects_1 = new int[]{};
+
+                nursery = new int[]{};
                 break;
-            case 3:
-                PlayerStructure.createNewStructure(user_island_id, 1, 18, 15,0, 1.0F);
+            }
+            case 3: {
+                places_3 = new int[][]{};
+                places_2 = new int[][]{};
+                places_1 = new int[][]{};
+
+                objects_3 = new int[]{};
+                objects_2 = new int[]{};
+                objects_1 = new int[]{};
+
+                nursery = new int[]{};
                 break;
-            case 4:
-                PlayerStructure.createNewStructure(user_island_id, 1, 18, 31,0, 1.0F);
+            }
+            case 4: {
+                places_3 = new int[][]{};
+                places_2 = new int[][]{};
+                places_1 = new int[][]{};
+
+                objects_3 = new int[]{};
+                objects_2 = new int[]{};
+                objects_1 = new int[]{};
+
+                nursery = new int[]{};
                 break;
-            case 5:
-                PlayerStructure.createNewStructure(user_island_id, 1, 39, 23,1, 1.0F);
+            }
+            case 5: {
+                places_3 = new int[][]{};
+                places_2 = new int[][]{};
+                places_1 = new int[][]{};
+
+                objects_3 = new int[]{};
+                objects_2 = new int[]{};
+                objects_1 = new int[]{};
+
+                nursery = new int[]{};
                 break;
+            }
+            default: {
+                places_3 = new int[][]{};
+                places_2 = new int[][]{};
+                places_1 = new int[][]{};
+
+                objects_3 = new int[]{};
+                objects_2 = new int[]{};
+                objects_1 = new int[]{};
+
+                nursery = new int[]{};
+                break;
+            }
         }
+
+        for (int[] place_3: places_3) {
+            PlayerStructure.createNewStructure(user_island_id, objects_3[randInt(0, objects_3.length-1)],
+                    place_3[0], place_3[1], randInt(0,1), 1.0F);
+        }
+
+        for (int[] place_2: places_2) {
+            PlayerStructure.createNewStructure(user_island_id, objects_2[randInt(0, objects_2.length-1)],
+                    place_2[0], place_2[1], randInt(0,1), 1.0F);
+        }
+
+        for (int[] place_1: places_1) {
+            PlayerStructure.createNewStructure(user_island_id, objects_1[randInt(0, objects_1.length-1)],
+                    place_1[0], place_1[1], randInt(0,1), 1.0F);
+        }
+
+        PlayerStructure.createNewStructure(user_island_id, 1, nursery[0], nursery[1], 0, 1.0F);
     }
 }

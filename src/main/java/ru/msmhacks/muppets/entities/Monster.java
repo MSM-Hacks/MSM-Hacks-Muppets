@@ -123,6 +123,33 @@ public class Monster {
 
     public static void dropMonstersDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS monsters");
+    }
+
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("monsters")
+                .columns("monster_id", "beds", "build_time", "cost_coins", "cost_diamonds", "entity_id", "hide_friends",
+                        "level", "monster_id", "movable", "size_x", "size_y", "sticker_offset", "tier", "view_in_market",
+                        "xp", "y_offset", "description", "entity_type", "fb_object_id", "genes", "hatch_sound",
+                        "min_server_version", "name", "graphic", "happiness", "levels", "requirements")
+                .values(this.monster_id, this.beds, this.build_time, this.cost_coins, this.cost_diamonds, this.entity_id,
+                        this.hide_friends, this.level, this.monster_id, this.movable, this.size_x, this.size_y,
+                        this.sticker_offset, this.tier, this.view_in_market, this.xp, this.y_offset, this.description,
+                        this.entity_type, this.fb_object_id, this.genes, this.hatch_sound, this.min_server_version,
+                        this.name, this.graphic.toJson(), this.happiness.toJson(), this.levels.toJson(),
+                        this.requirements.toJson())
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+
+    public static Monster getMonsterByID(int monster_id) {
+        return monsters_fastdb.get(monster_id);
+    }
+
+    public static void initMonstersDatabase() throws SQLException {
+        monsters_fastdb = new HashMap<>();
+        SFSArray ms_list = new SFSArray();
 
         String sql = SQLiteQueryBuilder.create()
                 .table("monsters")
@@ -157,35 +184,8 @@ public class Monster {
                 .toString();
 
         stmt.executeUpdate(sql);
-    }
 
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("monsters")
-                .columns("monster_id", "beds", "build_time", "cost_coins", "cost_diamonds", "entity_id", "hide_friends",
-                        "level", "monster_id", "movable", "size_x", "size_y", "sticker_offset", "tier", "view_in_market",
-                        "xp", "y_offset", "description", "entity_type", "fb_object_id", "genes", "hatch_sound",
-                        "min_server_version", "name", "graphic", "happiness", "levels", "requirements")
-                .values(this.monster_id, this.beds, this.build_time, this.cost_coins, this.cost_diamonds, this.entity_id,
-                        this.hide_friends, this.level, this.monster_id, this.movable, this.size_x, this.size_y,
-                        this.sticker_offset, this.tier, this.view_in_market, this.xp, this.y_offset, this.description,
-                        this.entity_type, this.fb_object_id, this.genes, this.hatch_sound, this.min_server_version,
-                        this.name, this.graphic.toJson(), this.happiness.toJson(), this.levels.toJson(),
-                        this.requirements.toJson())
-                .build();
-
-        stmt.executeUpdate(sql);
-    }
-
-    public static Monster getMonsterByID(int monster_id) {
-        return monsters_fastdb.get(monster_id);
-    }
-
-    public static void initMonstersDatabase() {
-        monsters_fastdb = new HashMap<>();
-        SFSArray ms_list = new SFSArray();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("monsters")
                 .build();
         ResultSet rs = null;

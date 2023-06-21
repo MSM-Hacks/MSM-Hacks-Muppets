@@ -108,6 +108,31 @@ public class Structure {
 
     public static void dropStructuresDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS structures");
+    }
+
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("structures")
+                .columns("structure_id", "build_time", "cost_coins", "cost_diamonds", "entity_id", "level", "movable",
+                        "size_x", "size_y", "sticker_offset", "view_in_market", "xp", "y_offset", "upgrades_to", "description",
+                        "entity_type", "structure_type", "min_server_version", "name", "graphic", "extra", "requirements")
+                .values(this.structure_id, this.build_time, this.cost_coins, this.cost_diamonds, this.entity_id,
+                        this.level, this.movable, this.size_x, this.size_y, this.sticker_offset, this.view_in_market,
+                        this.xp, this.y_offset, this.upgrades_to, this.description, this.entity_type, this.structure_type,
+                        this.min_server_version, this.name, this.graphic.toJson(), this.extra.toJson(),
+                        this.requirements.toJson())
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+
+    public static Structure getStructureByID(int structure_id) {
+        return structures_fastdb.get(structure_id);
+    }
+
+    public static void initStructuresDatabase() throws SQLException {
+        structures_fastdb = new HashMap<>();
+        SFSArray st_list = new SFSArray();
 
         String sql = SQLiteQueryBuilder.create()
                 .table("structures")
@@ -137,33 +162,8 @@ public class Structure {
                 .toString();
 
         stmt.executeUpdate(sql);
-    }
 
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("structures")
-                .columns("structure_id", "build_time", "cost_coins", "cost_diamonds", "entity_id", "level", "movable",
-                        "size_x", "size_y", "sticker_offset", "view_in_market", "xp", "y_offset", "upgrades_to", "description",
-                        "entity_type", "structure_type", "min_server_version", "name", "graphic", "extra", "requirements")
-                .values(this.structure_id, this.build_time, this.cost_coins, this.cost_diamonds, this.entity_id,
-                        this.level, this.movable, this.size_x, this.size_y, this.sticker_offset, this.view_in_market,
-                        this.xp, this.y_offset, this.upgrades_to, this.description, this.entity_type, this.structure_type,
-                        this.min_server_version, this.name, this.graphic.toJson(), this.extra.toJson(),
-                        this.requirements.toJson())
-                .build();
-
-        stmt.executeUpdate(sql);
-    }
-
-    public static Structure getStructureByID(int structure_id) {
-        return structures_fastdb.get(structure_id);
-    }
-
-    public static void initStructuresDatabase() throws SQLException {
-        structures_fastdb = new HashMap<>();
-        SFSArray st_list = new SFSArray();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("structures")
                 .build();
         ResultSet rs = null;
@@ -182,7 +182,7 @@ public class Structure {
                 s.size_x = rs.getInt("size_x");
                 s.size_y = rs.getInt("size_y");
                 s.sticker_offset = rs.getInt("sticker_offset");
-                s.view_in_market = 1;//rs.getInt("view_in_market");
+                s.view_in_market = rs.getInt("view_in_market");
                 s.xp = rs.getInt("xp");
                 s.y_offset = rs.getInt("y_offset");
                 s.description = rs.getString("description");
@@ -193,7 +193,7 @@ public class Structure {
                 s.graphic = (SFSObject) SFSObject.newFromJsonData(rs.getString("graphic"));
                 s.extra = (SFSObject) SFSObject.newFromJsonData(rs.getString("extra"));
                 s.requirements = (SFSArray) SFSArray.newFromJsonData(rs.getString("requirements"));
-                s.upgrades_to = 0;//rs.getInt("upgrades_to");
+                s.upgrades_to = rs.getInt("upgrades_to");
                 structures_fastdb.put(s.structure_id, s);
 
                 st_list.addSFSObject(s.toSFSObject());

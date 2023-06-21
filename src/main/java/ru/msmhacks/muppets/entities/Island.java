@@ -90,6 +90,28 @@ public class Island {
 
     public static void dropIslandsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS islands");
+    }
+
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("islands")
+                .columns("island_id", "cost_coins", "cost_diamonds", "level", "description", "status", "fb_object_id", "genes",
+                        "midi", "min_server_version", "name", "graphic", "monsters", "structures", "levels")
+                .values(this.island_id, this.cost_coins, this.cost_diamonds, this.level, this.description, this.status,
+                        this.fb_object_id, this.genes, this.midi, this.min_server_version, this.name, this.graphic.toJson(),
+                        this.monsters.toJson(), this.structures.toJson(), this.levels.toJson())
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+
+    public static Island getIslandByID(int island_id) {
+        return islands_fastdb.get(island_id);
+    }
+
+    public static void initIslandsDatabase() throws SQLException {
+        islands_fastdb = new HashMap<>();
+        SFSArray isl_list = new SFSArray();
 
         String sql = SQLiteQueryBuilder.create()
                 .table("islands")
@@ -112,30 +134,8 @@ public class Island {
                 .toString();
 
         stmt.executeUpdate(sql);
-    }
 
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("islands")
-                .columns("island_id", "cost_coins", "cost_diamonds", "level", "description", "status", "fb_object_id", "genes",
-                        "midi", "min_server_version", "name", "graphic", "monsters", "structures", "levels")
-                .values(this.island_id, this.cost_coins, this.cost_diamonds, this.level, this.description, this.status,
-                        this.fb_object_id, this.genes, this.midi, this.min_server_version, this.name, this.graphic.toJson(),
-                        this.monsters.toJson(), this.structures.toJson(), this.levels.toJson())
-                .build();
-
-        stmt.executeUpdate(sql);
-    }
-
-    public static Island getIslandByID(int island_id) {
-        return islands_fastdb.get(island_id);
-    }
-
-    public static void initIslandsDatabase() {
-        islands_fastdb = new HashMap<>();
-        SFSArray isl_list = new SFSArray();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("islands")
                 .build();
         ResultSet rs = null;

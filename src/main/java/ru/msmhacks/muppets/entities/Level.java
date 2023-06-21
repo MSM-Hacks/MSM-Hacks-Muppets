@@ -60,20 +60,6 @@ public class Level {
 
     public static void dropLevelsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS levels");
-
-        String sql = SQLiteQueryBuilder.create()
-                .table("levels")
-                .ifNotExists()
-                .column(new Column("coins_conversion", ColumnType.INTEGER))
-                .column(new Column("diamonds_conversion", ColumnType.INTEGER))
-                .column(new Column("level", ColumnType.INTEGER))
-                .column(new Column("diamond_reward", ColumnType.INTEGER))
-                .column(new Column("xp", ColumnType.INTEGER))
-                .column(new Column("max_bakeries", ColumnType.INTEGER))
-                .column(new Column("daily_rewards", ColumnType.TEXT))
-                .toString();
-
-        stmt.executeUpdate(sql);
     }
 
     public void importToDB() throws SQLException {
@@ -92,11 +78,25 @@ public class Level {
         return levels_fastdb.get(level);
     }
 
-    public static void initLevelsDatabase() {
+    public static void initLevelsDatabase() throws SQLException {
         levels_fastdb = new HashMap<>();
         SFSArray lvl_list = new SFSArray();
 
-        String sql = SQLiteQueryBuilder.select("*")
+        String sql = SQLiteQueryBuilder.create()
+                .table("levels")
+                .ifNotExists()
+                .column(new Column("coins_conversion", ColumnType.INTEGER))
+                .column(new Column("diamonds_conversion", ColumnType.INTEGER))
+                .column(new Column("level", ColumnType.INTEGER))
+                .column(new Column("diamond_reward", ColumnType.INTEGER))
+                .column(new Column("xp", ColumnType.INTEGER))
+                .column(new Column("max_bakeries", ColumnType.INTEGER))
+                .column(new Column("daily_rewards", ColumnType.TEXT))
+                .toString();
+
+        stmt.executeUpdate(sql);
+
+        sql = SQLiteQueryBuilder.select("*")
                 .from("levels")
                 .build();
         ResultSet rs = null;

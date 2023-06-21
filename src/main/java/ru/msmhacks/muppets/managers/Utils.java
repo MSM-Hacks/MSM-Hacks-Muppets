@@ -2,11 +2,17 @@ package ru.msmhacks.muppets.managers;
 
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import ru.msmhacks.muppets.MuppetsExtension;
+import ru.msmhacks.muppets.entities.Player.PlayerIsland;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+
+import static java.lang.Math.round;
 
 public class Utils {
     public static String ReadFile(File file) {
@@ -46,11 +52,18 @@ public class Utils {
         return fileNames;
     }
 
-    public static void log(String str) {
-        if (MuppetsExtension.extension != null) {
-            MuppetsExtension.extension.trace(str);
+    public static void log(String text) {
+        if (MuppetsExtension.extension == null) {
+            System.out.println(text);
         } else {
-            System.out.println(str);
+            MuppetsExtension.extension.trace(text);
         }
     }
+    public static int randInt(int min, int max) {
+        Random rand = new Random();
+        rand.setSeed(round(System.currentTimeMillis()));
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+        return randomNum;
+    }
+
 }

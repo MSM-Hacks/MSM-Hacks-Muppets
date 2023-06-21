@@ -68,23 +68,6 @@ public class Light {
 
     public static void dropLightsDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS lights");
-
-        String sql = SQLiteQueryBuilder.create()
-                .table("lights")
-                .ifNotExists()
-                .column(new Column("lighting_id", ColumnType.INTEGER))
-                .column(new Column("cost_coins", ColumnType.INTEGER))
-                .column(new Column("cost_diamonds", ColumnType.INTEGER))
-                .column(new Column("level", ColumnType.INTEGER))
-                .column(new Column("initial", ColumnType.INTEGER))
-                .column(new Column("island_id", ColumnType.INTEGER))
-                .column(new Column("view_in_market", ColumnType.INTEGER))
-                .column(new Column("graphic", ColumnType.TEXT))
-                .column(new Column("name", ColumnType.TEXT))
-                .column(new Column("description", ColumnType.TEXT))
-                .toString();
-
-        stmt.executeUpdate(sql);
     }
 
     public void importToDB() throws SQLException {
@@ -103,11 +86,28 @@ public class Light {
         return lights_fastdb.get(lighting_id);
     }
 
-    public static void initLightsDatabase() {
+    public static void initLightsDatabase() throws SQLException {
         lights_fastdb = new HashMap<>();
         SFSArray light_list = new SFSArray();
 
-        String sql = SQLiteQueryBuilder.select("*")
+        String sql = SQLiteQueryBuilder.create()
+                .table("lights")
+                .ifNotExists()
+                .column(new Column("lighting_id", ColumnType.INTEGER))
+                .column(new Column("cost_coins", ColumnType.INTEGER))
+                .column(new Column("cost_diamonds", ColumnType.INTEGER))
+                .column(new Column("level", ColumnType.INTEGER))
+                .column(new Column("initial", ColumnType.INTEGER))
+                .column(new Column("island_id", ColumnType.INTEGER))
+                .column(new Column("view_in_market", ColumnType.INTEGER))
+                .column(new Column("graphic", ColumnType.TEXT))
+                .column(new Column("name", ColumnType.TEXT))
+                .column(new Column("description", ColumnType.TEXT))
+                .toString();
+
+        stmt.executeUpdate(sql);
+
+        sql = SQLiteQueryBuilder.select("*")
                 .from("lights")
                 .build();
         ResultSet rs = null;

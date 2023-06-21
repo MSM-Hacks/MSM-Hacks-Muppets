@@ -85,6 +85,25 @@ public class PlayerStructure {
 
     public static void dropPlayerStructuresDatabase() throws SQLException {
         stmt.executeUpdate("DROP TABLE IF EXISTS player_structures");
+    }
+
+    public void importToDB() throws SQLException {
+        String sql = SQLiteQueryBuilder.insert()
+                .into("player_structures")
+                .columns("user_structure_id", "user_island_id", "pos_x", "pos_y", "flip", "muted",
+                        "is_complete", "is_upgrading", "structure", "scale", "building_completed",
+                        "date_created", "last_collection")
+                .values(this.user_structure_id, this.user_island_id, this.pos_x, this.pos_y, this.flip, this.muted,
+                        this.is_complete, this.is_upgrading, this.structure, this.scale, this.building_completed,
+                        this.date_created, this.last_collection)
+                .build();
+
+        stmt.executeUpdate(sql);
+    }
+
+    public static void initPlayerStructuresDatabase() throws SQLException {
+        structures = new HashMap<>();
+
         String sql = SQLiteQueryBuilder.create()
                 .table("player_structures")
                 .ifNotExists()
@@ -103,26 +122,8 @@ public class PlayerStructure {
                 .column(new Column("last_collection", ColumnType.INTEGER))
                 .toString();
         stmt.executeUpdate(sql);
-    }
 
-    public void importToDB() throws SQLException {
-        String sql = SQLiteQueryBuilder.insert()
-                .into("player_structures")
-                .columns("user_structure_id", "user_island_id", "pos_x", "pos_y", "flip", "muted",
-                        "is_complete", "is_upgrading", "structure", "scale", "building_completed",
-                        "date_created", "last_collection")
-                .values(this.user_structure_id, this.user_island_id, this.pos_x, this.pos_y, this.flip, this.muted,
-                        this.is_complete, this.is_upgrading, this.structure, this.scale, this.building_completed,
-                        this.date_created, this.last_collection)
-                .build();
-
-        stmt.executeUpdate(sql);
-    }
-
-    public static void initPlayerStructuresDatabase() {
-        structures = new HashMap<>();
-
-        String sql = SQLiteQueryBuilder.select("*")
+        sql = SQLiteQueryBuilder.select("*")
                 .from("player_structures")
                 .build();
         ResultSet rs = null;
