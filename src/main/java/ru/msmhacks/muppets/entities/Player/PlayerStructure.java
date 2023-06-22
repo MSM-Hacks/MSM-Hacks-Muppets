@@ -279,8 +279,25 @@ public class PlayerStructure {
                 new Object[]{playerStructure.date_created, playerStructure.building_completed, user_structure_id});
 
         return true;
+    }
 
-        //PlayerDatabaseManager.executeVoid("DELETE FROM player_structures WHERE user_structure_id = %s;",
-        //        new Object[]{user_structure_id});
+    public static boolean finishUpgradingStructure(long user_structure_id) {
+        PlayerStructure playerStructure = getStructure(user_structure_id);
+        Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
+
+        if (playerStructure.is_upgrading == 0) {return false;}
+        Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
+
+        playerStructure.structure = newStructure.structure_id;
+        playerStructure.is_upgrading = 0;
+        playerStructure.is_complete = 1;
+        playerStructure.date_created = System.currentTimeMillis();
+        playerStructure.building_completed = 0L;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET is_upgrading = 0, is_complete = 1, date_created = %s," +
+                        "building_completed = 0, structure = %s WHERE user_structure_id = %s;",
+                new Object[]{playerStructure.date_created, playerStructure.structure, user_structure_id});
+
+        return true;
     }
 }

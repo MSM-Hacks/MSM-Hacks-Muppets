@@ -358,4 +358,13 @@ public class Player {
         }
         return null;
     }
+
+    public PlayerStructure finishUpdradingStructure(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id) && PlayerStructure.finishUpgradingStructure(user_structure_id)) {
+            Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
+            addBalances(0, 0, 0, structure.xp, false);
+            return getStructure(user_structure_id);
+        }
+        return null;
+    }
 }

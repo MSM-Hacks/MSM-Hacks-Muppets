@@ -202,7 +202,6 @@ public class MuppetsExtension extends SFSExtension {
                 PlayerStructure newStructure = player.buyStructure(structure_id, x, y, flip, scale);
                 if (newStructure != null) {
                     response.putBool("success", true);
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
                     response.putSFSArray("properties", player.getProperties());
                     response.putSFSObject("user_structure", newStructure.toSFSObject());
                 } else {
@@ -239,7 +238,6 @@ public class MuppetsExtension extends SFSExtension {
                     properties.addSFSObject(prop);
 
                     response.putSFSArray("properties", properties);
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error move stricture");
@@ -263,7 +261,6 @@ public class MuppetsExtension extends SFSExtension {
                     properties.addSFSObject(prop);
 
                     response.putSFSArray("properties", properties);
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
 
                     send("gs_flip_structure", SFSObject.newFromJsonData("{\"success\":true}"), sender);
                     send("gs_update_structure", response, sender);
@@ -313,7 +310,6 @@ public class MuppetsExtension extends SFSExtension {
                     properties.addSFSObject(prop);
 
                     response.putSFSArray("properties", properties);
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
 
                     send("gs_start_obstacle", response, sender);
                     break;
@@ -395,13 +391,51 @@ public class MuppetsExtension extends SFSExtension {
                     properties.addSFSObject(prop);
 
                     response.putSFSArray("properties", properties);
-                    response.putSFSArray("monster_happy_effects", new SFSArray());
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error upgrading stricture");
                 }
                 send("gs_update_structure", response, sender);
                 //send("gs_start_upgrade_structure", response, sender);
+                break;
+            }
+            case "gs_finish_upgrade_structure": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.finishUpdradingStructure(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("structure", newStructure.structure);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("building_completed", newStructure.building_completed);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("is_complete", newStructure.is_complete);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("is_upgrading", newStructure.is_upgrading);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("date_created", newStructure.date_created);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error move stricture");
+                }
+                send("gs_finish_upgrade_structure", response, sender);
                 break;
             }
             //Social
