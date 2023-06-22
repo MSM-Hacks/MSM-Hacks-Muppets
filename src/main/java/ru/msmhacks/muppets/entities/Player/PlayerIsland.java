@@ -211,7 +211,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{205, 201};
 
                 nursery = new int[]{10, 20};
-                castle = new int[]{208, 41, 8};
+                castle = new int[]{208, 33, 34};
                 break;
             }
             case 2: {

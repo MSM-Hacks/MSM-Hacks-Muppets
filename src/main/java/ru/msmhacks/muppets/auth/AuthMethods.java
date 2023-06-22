@@ -1,5 +1,7 @@
 package ru.msmhacks.muppets.auth;
 
+import ru.msmhacks.muppets.managers.AuthDatabaseManager;
+
 import java.util.Base64;
 
 import static ru.msmhacks.muppets.auth.AuthUtils.stringCharSum;
@@ -11,11 +13,11 @@ public class AuthMethods {
         String username = Base64.getEncoder().encodeToString(String.valueOf(stringCharSum(device_id+mac_address)).getBytes()).replace("=", "!");
         String password = Base64.getEncoder().encodeToString(String.valueOf(stringCharSum(device_id+mac_address+random)).getBytes()).replace("=", "!");
 
-        if (DatabaseManager.isUserExitsByUsername(username)) {
+        if (AuthDatabaseManager.isUserExitsByUsername(username)) {
             String[] login_data = new String[4];
             login_data[0] = username;
             login_data[1] = password;
-            login_data[2] = String.valueOf(DatabaseManager.getBBBIDbyUsername(username));
+            login_data[2] = String.valueOf(AuthDatabaseManager.getBBBIDbyUsername(username));
             login_data[3] = client_version;
             return login_data;
         }
@@ -23,17 +25,17 @@ public class AuthMethods {
         String[] login_data = new String[4];
         login_data[0] = username;
         login_data[1] = password;
-        login_data[2] = String.valueOf(DatabaseManager.createNewUser(username, password, "anon", lang,
+        login_data[2] = String.valueOf(AuthDatabaseManager.createNewUser(username, password, "anon", lang,
                 client_version, mac_address, platform, device_id, application_id, IP));
         login_data[3] = client_version;
         return login_data;
     }
 
     public static String[] checkUser(String username, String password) {
-        if (!DatabaseManager.isUserExitsByUsername(username)) {
+        if (!AuthDatabaseManager.isUserExitsByUsername(username)) {
             return new String[]{"false", "User doesn't exits!"};
         }
-        if (!DatabaseManager.isUserPasswordCorrect(username, password)) {
+        if (!AuthDatabaseManager.isUserPasswordCorrect(username, password)) {
             return new String[]{"false", "Incorrect password!"};
         }
         return new String[]{"true", "All OK!"};

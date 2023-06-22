@@ -30,11 +30,11 @@ public class Player {
 
     public String display_name = "New player";
 
-    public int coins = 1200;
-    public int diamonds = 17;
-    public int food = 0;
-    public int xp = 0;
-    public int level = 1;
+    public int coins = 5000; //1200
+    public int diamonds = 20; //17
+    public int food = 2500; //0
+    public int xp = 655; //0
+    public int level = 5; //1
     public int bbb_id = 1000;
     public int daily_reward_level = 1;
 
@@ -213,6 +213,12 @@ public class Player {
         }
     }
 
+    public void removePlayer() {
+        players.remove(player_id);
+        PlayerDatabaseManager.executeVoid("DELETE FROM players WHERE user_id = %s;",
+                new Object[]{player_id});
+    }
+
     public boolean addXp(int delta) {
         if (xp+delta>0) {
             xp += delta;
@@ -351,7 +357,7 @@ public class Player {
             if (oldStructure.upgrades_to == 0 || playerStructure.is_upgrading == 1) {return null;}
             Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
 
-            if (addBalances(newStructure.cost_coins, newStructure.cost_diamonds, 0, 0, false)) {
+            if (addBalances(newStructure.cost_coins*-1, newStructure.cost_diamonds*-1, 0, 0, false)) {
                 startUpgradingStructure(user_structure_id);
                 return playerStructure;
             }

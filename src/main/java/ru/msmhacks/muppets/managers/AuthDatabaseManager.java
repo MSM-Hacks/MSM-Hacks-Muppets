@@ -1,4 +1,4 @@
-package ru.msmhacks.muppets.auth;
+package ru.msmhacks.muppets.managers;
 
 import java.sql.*;
 
@@ -8,12 +8,12 @@ import com.alexfu.sqlitequerybuilder.api.ColumnType;
 import com.alexfu.sqlitequerybuilder.api.SQLiteQueryBuilder;
 
 
-public class DatabaseManager {
+public class AuthDatabaseManager {
 
     public static Connection c = null;
     public static Statement stmt = null;
 
-    public static void init() {
+    public static void init(boolean drop) {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:auth_data.db");
@@ -21,7 +21,7 @@ public class DatabaseManager {
 
             System.out.println("Opened database successfully");
 
-            stmt.executeUpdate("DROP TABLE users");
+            if (drop) stmt.executeUpdate("DROP TABLE IF EXISTS users");
 
 
             String sql = SQLiteQueryBuilder.create()

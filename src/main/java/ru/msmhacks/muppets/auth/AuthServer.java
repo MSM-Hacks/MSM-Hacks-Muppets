@@ -9,9 +9,8 @@ import flak.annotations.Post;
 import flak.annotations.Route;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import ru.msmhacks.muppets.MuppetsExtension;
+import ru.msmhacks.muppets.managers.AuthDatabaseManager;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -105,8 +104,6 @@ public class AuthServer {
 
     public static void runAuthServer(int port, String game_server_ip) throws Exception {
         AuthServer.game_server_ip = game_server_ip;
-
-        DatabaseManager.init();
 
         App app = Flak.createHttpApp(port);
         app.scan(new AuthServer());

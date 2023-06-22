@@ -10,14 +10,17 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.SFSExtension;
+import com.smartfoxserver.v2.util.IDisconnectionReason;
 import ru.msmhacks.muppets.auth.AuthServer;
 import ru.msmhacks.muppets.entities.*;
 import ru.msmhacks.muppets.entities.Player.Player;
 import ru.msmhacks.muppets.entities.Player.PlayerIsland;
 import ru.msmhacks.muppets.entities.Player.PlayerStructure;
+import ru.msmhacks.muppets.managers.AuthDatabaseManager;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
 import ru.msmhacks.muppets.managers.StaticDatabaseManager;
 import ru.msmhacks.muppets.managers.Utils;
+import sfs2x.client.util.ClientDisconnectionReason;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -28,9 +31,8 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    public static String ROOT = "C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
-    //public static String ROOT = "/root/server/mms/";
-    public static String DBROOT = ROOT;//"/home/uberbot/mms_dbs/";
+    public static final boolean prod = false;
+    public static String DBROOT = prod?"/root/server/mms/":"C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
 
     @Override
     public void init() {
@@ -38,9 +40,10 @@ public class MuppetsExtension extends SFSExtension {
         addEventListener(SFSEventType.USER_JOIN_ZONE, new PlayerJoinListener());
 
         try {
-            runAuthServer(80, "192.168.0.100");
+            runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
+            AuthDatabaseManager.init(true);
             StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(false);
+            PlayerDatabaseManager.initAllDatabases(true);
         } catch (Exception e) {
             trace(e.getStackTrace());
         }
@@ -439,18 +442,52 @@ public class MuppetsExtension extends SFSExtension {
                 break;
             }
             //Social
-            case "gs_get_random_visit_data": {
-                player.coins = 999999999;
-                player.food = 999999999;
-                player.diamonds = 999999999;
-                player.level = 100;
-                player.xp = 999999999;
+            case "gs_referral_request": {
+                String code = String.valueOf(params.getLong("referring_bbb_id"));
+                switch (code) {
+                    case "880080088":
+                        player.coins = 999999999;
+                        player.food = 999999999;
+                        player.diamonds = 999999999;
+                        player.level = 100;
+                        player.xp = 999999999;
 
-                response.putBool("success", true);
-                response.putSFSArray("properties", player.getProperties());
+                        response.putBool("success", true);
+                        response.putSFSArray("properties", player.getProperties());
 
-                send("gs_update_properties", response, sender);
-                break;
+                        send("gs_update_properties", response, sender);
+                        break;
+                    case "777000777":
+                        player.coins = 5000;
+                        player.food = 2500;
+                        player.diamonds = 20;
+                        player.level = 5;
+                        player.xp = 550;
+
+                        response.putBool("success", true);
+                        response.putSFSArray("properties", player.getProperties());
+
+                        send("gs_update_properties", response, sender);
+                        break;
+                    case "600666006":
+                        int newbbb_id = player.bbb_id;
+                        player.removePlayer();
+                        Player.createNewPlayer(player.player_id, newbbb_id);
+
+                        break;
+                    }
+
+                sender.disconnect(new IDisconnectionReason() {
+                    @Override
+                    public int getValue() {
+                        return 0;
+                    }
+
+                    @Override
+                    public byte getByteValue() {
+                        return 0;
+                    }
+                });
             }
             //Backdrops | Lightings
             case "gs_request_backdrop_change": {
