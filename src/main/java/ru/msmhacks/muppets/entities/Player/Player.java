@@ -19,6 +19,8 @@ import java.util.HashMap;
 
 import static ru.msmhacks.muppets.entities.Player.PlayerStructure.*;
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
+import static ru.msmhacks.muppets.managers.Utils.getSpeedupCost;
+import static ru.msmhacks.muppets.managers.Utils.log;
 
 public class Player {
 
@@ -42,7 +44,7 @@ public class Player {
     public SFSArray lighting = new SFSArray();
 
     public static Player createNewPlayer(String player_id, int bbb_id) {
-        Utils.log("Creating new player");
+        log("Creating new player");
         Player player = new Player();
         player.player_id = player_id;
         player.bbb_id = bbb_id;
@@ -93,7 +95,7 @@ public class Player {
     }
 
     public static void main(String[] args) {
-        Utils.log(getPlayer("dasasddas", 12).toSFSObject().toJson());
+        log(getPlayer("dasasddas", 12).toSFSObject().toJson());
     }
 
     public static void dropPlayersDatabase() throws SQLException {
@@ -309,14 +311,34 @@ public class Player {
         return null;
     }
 
+    public PlayerStructure startObstacle(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
+            if (addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, 0, false)) {
+                PlayerStructure.startClearingStructure(user_structure_id);
+                return PlayerStructure.getStructure(user_structure_id);
+            }
+        }
+        return null;
+    }
+    public PlayerStructure speedupObstacle(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
+            if (addBalances(0, getSpeedupCost(System.currentTimeMillis(), playerStructure.building_completed)*-1, 0, 0, false)) {
+                PlayerStructure.speedupStructure(user_structure_id);
+                log(PlayerStructure.getStructure(user_structure_id).toSFSObject().getDump());
+                return PlayerStructure.getStructure(user_structure_id);
+            }
+        }
+        return null;
+    }
     public Boolean clearObstacle(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
-            if (true) {
-                addBalances(0, 0, 0, structure.xp, false);
-                PlayerStructure.removeStructure(user_structure_id);
-                return true;
-            }
+            addBalances(0, 0, 0, structure.xp, false);
+            PlayerStructure.removeStructure(user_structure_id);
+            return true;
         }
         return null;
     }

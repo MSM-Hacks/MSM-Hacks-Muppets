@@ -61,9 +61,16 @@ public class Utils {
     }
     public static int randInt(int min, int max) {
         Random rand = new Random();
-        rand.setSeed(round(System.currentTimeMillis()));
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
+    }
+
+    public static int getSpeedupCost(long start, long end) {
+        if (start > end) {
+            return 0;
+        }
+
+        return round((end-start)/1800000) + 1;
     }
 
 }

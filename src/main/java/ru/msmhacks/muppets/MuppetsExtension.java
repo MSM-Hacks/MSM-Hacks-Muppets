@@ -202,23 +202,9 @@ public class MuppetsExtension extends SFSExtension {
                 PlayerStructure newStructure = player.buyStructure(structure_id, x, y, flip, scale);
                 if (newStructure != null) {
                     response.putBool("success", true);
-
-                    SFSObject structure = new SFSObject();
-                    structure.putLong("island", player.active_island);
-                    structure.putInt("pos_x", newStructure.pos_x);
-                    structure.putInt("pos_y", newStructure.pos_y);
-                    structure.putInt("flip", newStructure.flip);
-                    structure.putInt("muted", newStructure.muted);
-                    structure.putInt("is_upgrading", newStructure.is_upgrading);
-                    structure.putInt("is_complete", newStructure.is_complete);
-                    structure.putLong("user_structure_id", newStructure.user_structure_id);
-                    structure.putLong("last_collection", newStructure.last_collection);
-                    structure.putInt("structure", newStructure.structure);
-                    structure.putDouble("scale", newStructure.scale);
-
                     response.putSFSArray("monster_happy_effects", new SFSArray());
                     response.putSFSArray("properties", player.getProperties());
-                    response.putSFSObject("user_structure", structure);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error buying stricture");
@@ -236,20 +222,7 @@ public class MuppetsExtension extends SFSExtension {
                 if (newStructure != null) {
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
-
-                    SFSObject structure = new SFSObject();
-                    structure.putLong("island", player.active_island);
-                    structure.putInt("pos_x", newStructure.pos_x);
-                    structure.putInt("pos_y", newStructure.pos_y);
-                    structure.putInt("flip", newStructure.flip);
-                    structure.putInt("muted", newStructure.muted);
-                    structure.putInt("is_upgrading", newStructure.is_upgrading);
-                    structure.putInt("is_complete", newStructure.is_complete);
-                    structure.putLong("user_structure_id", newStructure.user_structure_id);
-                    structure.putLong("last_collection", newStructure.last_collection);
-                    structure.putInt("structure", newStructure.structure);
-                    structure.putDouble("scale", newStructure.scale);
-                    response.putSFSObject("user_structure", structure);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
 
                     SFSArray properties = player.getProperties();
 
@@ -281,21 +254,7 @@ public class MuppetsExtension extends SFSExtension {
                 if (newStructure != null) {
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
-
-                    SFSObject structure = new SFSObject();
-                    structure.putLong("island", player.active_island);
-                    structure.putInt("pos_x", newStructure.pos_x);
-                    structure.putInt("pos_y", newStructure.pos_y);
-                    structure.putInt("flip", newStructure.flip);
-                    structure.putInt("muted", newStructure.muted);
-                    structure.putInt("is_upgrading", newStructure.is_upgrading);
-                    structure.putInt("is_complete", newStructure.is_complete);
-                    structure.putLong("user_structure_id", newStructure.user_structure_id);
-                    structure.putLong("last_collection", newStructure.last_collection);
-                    structure.putInt("structure", newStructure.structure);
-                    structure.putDouble("scale", newStructure.scale);
-
-                    response.putSFSObject("user_structure", structure);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
 
                     SFSArray properties = new SFSArray();
 
@@ -328,6 +287,71 @@ public class MuppetsExtension extends SFSExtension {
                     response.putUtfString("message", "Error sell stricture");
                 }
                 send("gs_sell_structure", response, sender);
+                break;
+            }
+            case "gs_start_obstacle": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.startObstacle(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putLong("date_created", newStructure.date_created);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("building_completed", newStructure.building_completed);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("last_collection", newStructure.last_collection);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    response.putSFSArray("monster_happy_effects", new SFSArray());
+
+                    send("gs_start_obstacle", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error start obstacle");
+                }
+                send("gs_start_obstacle", response, sender);
+                break;
+            }
+            case "gs_clear_obstacle_speed_up": {
+                long user_structure_id = params.getLong("user_structure_id");
+                PlayerStructure newStructure = player.speedupObstacle(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putInt("diamonds_used", 1);
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putLong("building_completed", newStructure.building_completed);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("date_created", newStructure.date_created);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+
+                    send("gs_clear_obstacle_speed_up", response, sender);
+                    send("gs_update_structure", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error start obstacle");
+                }
+                send("gs_clear_obstacle_speed_up", response, sender);
                 break;
             }
             case "gs_clear_obstacle": {

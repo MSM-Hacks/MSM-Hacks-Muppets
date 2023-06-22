@@ -15,8 +15,8 @@ import java.util.HashMap;
 
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
 
-public class PlayerStructure {
-    public static HashMap<Long, PlayerStructure> structures = new HashMap<>();
+public class PlayerMonster {
+    public static HashMap<Long, PlayerMonster> structures = new HashMap<>();
 
     public long user_structure_id = 0;
     public long user_island_id = 0;
@@ -30,17 +30,14 @@ public class PlayerStructure {
     public int structure = 0;
     public float scale = 1.0F;
 
-    public Long building_completed = 0L;
-    public Long date_created = 0L;
-    public Long last_collection = 0L;
-
-    public Integer obj_data = null;
-    public Long obj_end = null;
+    public long building_completed = 0;
+    public long date_created = 0;
+    public long last_collection = 0;
 
 
-    public static PlayerStructure createNewStructure(long user_island_id, int structure_id, int x, int y, int flip, float scale) {
+    public static PlayerMonster createNewStructure(long user_island_id, int structure_id, int x, int y, int flip, float scale) {
         Utils.log("Creating new structure");
-        PlayerStructure structure = new PlayerStructure();
+        PlayerMonster structure = new PlayerMonster();
         structure.user_island_id = user_island_id;
         structure.user_structure_id = structures.size();
         structure.structure = structure_id;
@@ -48,13 +45,14 @@ public class PlayerStructure {
         structure.pos_y = y;
         structure.flip = flip;
         structure.scale = scale;
+        structure.date_created = System.currentTimeMillis();
 
         structures.put(structure.user_structure_id, structure);
         try {structure.importToDB();} catch (SQLException ignored) {}
         return structure;
     }
 
-    public static PlayerStructure getStructure(long user_structure_id) {
+    public static PlayerMonster getStructure(long user_structure_id) {
         if (structures.containsKey(user_structure_id)) {
             return structures.get(user_structure_id);
         }
@@ -69,7 +67,7 @@ public class PlayerStructure {
 
         structure.putInt("pos_x", pos_x);
         structure.putInt("pos_y", pos_y);
-        structure.putInt("flip", flip);
+        structure.putInt("pos_flip", flip);
         structure.putInt("muted", muted);
         structure.putInt("is_complete", is_complete);
         structure.putInt("is_upgrading", is_upgrading);
@@ -77,12 +75,9 @@ public class PlayerStructure {
 
         structure.putFloat("scale", scale);
 
-        if (building_completed!=null) structure.putLong("building_completed", building_completed);
-        if (date_created!=null) structure.putLong("date_created", date_created);
-        if (last_collection!=null) structure.putLong("last_collection", last_collection);
-
-        if (obj_data!=null) structure.putInt("obj_data", obj_data);
-        if (obj_end!=null) structure.putLong("obj_end", obj_end);
+        structure.putLong("building_completed", building_completed);
+        structure.putLong("date_created", date_created);
+        structure.putLong("last_collection", last_collection);
 
         return structure;
     }
@@ -96,10 +91,10 @@ public class PlayerStructure {
                 .into("player_structures")
                 .columns("user_structure_id", "user_island_id", "pos_x", "pos_y", "flip", "muted",
                         "is_complete", "is_upgrading", "structure", "scale", "building_completed",
-                        "date_created", "last_collection", "obj_data", "obj_end")
+                        "date_created", "last_collection")
                 .values(this.user_structure_id, this.user_island_id, this.pos_x, this.pos_y, this.flip, this.muted,
                         this.is_complete, this.is_upgrading, this.structure, this.scale, this.building_completed,
-                        this.date_created, this.last_collection, obj_data, obj_end)
+                        this.date_created, this.last_collection)
                 .build();
 
         stmt.executeUpdate(sql);
@@ -124,8 +119,6 @@ public class PlayerStructure {
                 .column(new Column("building_completed", ColumnType.INTEGER))
                 .column(new Column("date_created", ColumnType.INTEGER))
                 .column(new Column("last_collection", ColumnType.INTEGER))
-                .column(new Column("obj_data", ColumnType.INTEGER))
-                .column(new Column("obj_end", ColumnType.INTEGER))
                 .toString();
         stmt.executeUpdate(sql);
 
@@ -137,7 +130,7 @@ public class PlayerStructure {
         try {
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                PlayerStructure pi = new PlayerStructure();
+                PlayerMonster pi = new PlayerMonster();
                 pi.user_structure_id = rs.getLong("user_structure_id");
                 pi.user_island_id = rs.getLong("user_island_id");
                 pi.pos_x = rs.getInt("pos_x");
@@ -148,11 +141,9 @@ public class PlayerStructure {
                 pi.is_upgrading = rs.getInt("is_upgrading");
                 pi.structure = rs.getInt("structure");
                 pi.scale = rs.getFloat("scale");
-                pi.building_completed = rs.getInt("building_completed")==0?null:rs.getLong("building_completed");
-                pi.date_created = rs.getLong("date_created")==0?null:rs.getLong("date_created");
-                pi.last_collection = rs.getLong("last_collection")==0?null:rs.getLong("last_collection");
-                pi.obj_data = rs.getInt("obj_data")==0?null:rs.getInt("obj_data");
-                pi.obj_end = rs.getInt("obj_end")==0?null:rs.getLong("obj_end");
+                pi.building_completed = rs.getLong("building_completed");
+                pi.date_created = rs.getLong("date_created");
+                pi.last_collection = rs.getLong("last_collection");
 
                 structures.put(pi.user_structure_id, pi);
             }
@@ -160,7 +151,7 @@ public class PlayerStructure {
 
     }
 
-    public static PlayerStructure[] getStructuresOnIsland(long user_island_id) {
+    public static PlayerMonster[] getStructuresOnIsland(long user_island_id) {
         String sql = SQLiteQueryBuilder.select("*")
                 .from("player_structures")
                 .where("user_island_id = " + user_island_id)
@@ -169,14 +160,14 @@ public class PlayerStructure {
 
         try {
             rs = stmt.executeQuery(sql);
-            ArrayList<PlayerStructure> structures_on_island = new ArrayList<PlayerStructure>();
+            ArrayList<PlayerMonster> structures_on_island = new ArrayList<PlayerMonster>();
             while (rs.next()) {
                 structures_on_island.add(getStructure(rs.getLong("user_structure_id")));
             }
-            PlayerStructure[] structuresOnIsland = new PlayerStructure[structures_on_island.size()];
+            PlayerMonster[] structuresOnIsland = new PlayerMonster[structures_on_island.size()];
 
             int index = 0;
-            for (PlayerStructure structureOnIsland : structures_on_island) {
+            for (PlayerMonster structureOnIsland : structures_on_island) {
                 structuresOnIsland[index] = structureOnIsland;
                 index++;
             }
@@ -235,26 +226,6 @@ public class PlayerStructure {
                 new Object[]{newFlip, user_structure_id});
     }
 
-    public static void startClearingStructure(long user_structure_id) {
-        PlayerStructure playerStructure = getStructure(user_structure_id);
-        Structure structure1 = Structure.getStructureByID(playerStructure.structure);
-        playerStructure.date_created = System.currentTimeMillis();
-        playerStructure.building_completed = System.currentTimeMillis() + structure1.build_time*1000;
-        playerStructure.last_collection = 0L;
-
-        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET date_created = %s, building_completed = %s, last_collection = %s WHERE user_structure_id = %s;",
-                new Object[]{playerStructure.date_created, playerStructure.building_completed, playerStructure.last_collection, user_structure_id});
-    }
-
-    public static void speedupStructure(long user_structure_id) {
-        PlayerStructure playerStructure = getStructure(user_structure_id);
-        playerStructure.building_completed = System.currentTimeMillis();
-
-        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET building_completed = %s WHERE user_structure_id = %s;",
-                new Object[]{playerStructure.building_completed, user_structure_id});
-
-    }
-
     public static void removeStructure(long user_structure_id) {
         structures.remove(user_structure_id);
 
@@ -263,7 +234,7 @@ public class PlayerStructure {
     }
 
     public static boolean startUpgradingStructure(long user_structure_id) {
-        PlayerStructure playerStructure = getStructure(user_structure_id);
+        PlayerMonster playerStructure = getStructure(user_structure_id);
         Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
 
         if (oldStructure.upgrades_to == 0 || playerStructure.is_upgrading == 1) {return false;}

@@ -29,6 +29,7 @@ public class PlayerIsland {
     public int backdrop_id = 0;
     public int lighting_id = 0;
     public int island = 0;
+    public int[] beds = {4,0};
 
     public SFSArray monsters = new SFSArray();
 
@@ -197,6 +198,7 @@ public class PlayerIsland {
         int[] objects_1;
 
         int[] nursery;
+        int[] castle;
 
         switch (island) {
             case 1: {
@@ -209,6 +211,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{205, 201};
 
                 nursery = new int[]{10, 20};
+                castle = new int[]{208, 41, 8};
                 break;
             }
             case 2: {
@@ -221,6 +224,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{};
 
                 nursery = new int[]{};
+                castle = new int[]{};
                 break;
             }
             case 3: {
@@ -233,6 +237,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{};
 
                 nursery = new int[]{};
+                castle = new int[]{};
                 break;
             }
             case 4: {
@@ -245,6 +250,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{};
 
                 nursery = new int[]{};
+                castle = new int[]{};
                 break;
             }
             case 5: {
@@ -257,6 +263,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{};
 
                 nursery = new int[]{};
+                castle = new int[]{};
                 break;
             }
             default: {
@@ -269,25 +276,54 @@ public class PlayerIsland {
                 objects_1 = new int[]{};
 
                 nursery = new int[]{};
+                castle = new int[]{};
                 break;
             }
         }
 
         for (int[] place_3: places_3) {
-            PlayerStructure.createNewStructure(user_island_id, objects_3[randInt(0, objects_3.length-1)],
-                    place_3[0], place_3[1], randInt(0,1), 1.0F);
+                PlayerStructure st = PlayerStructure.createNewStructure(user_island_id, objects_3[randInt(0, objects_3.length - 1)],
+                        place_3[0], place_3[1], randInt(0, 1), 1.0F);
+                st.is_complete = 1;
+                st.is_upgrading = 0;
+                st.building_completed = null;
+                st.date_created = null;
+                st.last_collection = null;
         }
 
         for (int[] place_2: places_2) {
-            PlayerStructure.createNewStructure(user_island_id, objects_2[randInt(0, objects_2.length-1)],
-                    place_2[0], place_2[1], randInt(0,1), 1.0F);
+                PlayerStructure st = PlayerStructure.createNewStructure(user_island_id, objects_2[randInt(0, objects_2.length - 1)],
+                        place_2[0], place_2[1], randInt(0, 1), 1.0F);
+                st.is_complete = 1;
+                st.is_upgrading = 0;
+                st.building_completed = null;
+                st.date_created = null;
+                st.last_collection = null;
         }
 
         for (int[] place_1: places_1) {
-            PlayerStructure.createNewStructure(user_island_id, objects_1[randInt(0, objects_1.length-1)],
-                    place_1[0], place_1[1], randInt(0,1), 1.0F);
+                PlayerStructure st = PlayerStructure.createNewStructure(user_island_id, objects_1[randInt(0, objects_1.length - 1)],
+                        place_1[0], place_1[1], randInt(0, 1), 1.0F);
+                st.is_complete = 1;
+                st.is_upgrading = 0;
+                st.building_completed = null;
+                st.date_created = null;
+                st.last_collection = null;
         }
 
         PlayerStructure.createNewStructure(user_island_id, 1, nursery[0], nursery[1], 0, 1.0F);
+        PlayerStructure.createNewStructure(user_island_id, castle[0], castle[1], castle[2], 0, 1.0F);
+    }
+
+    public static void main(String[] args) {
+        PlayerIsland a = createNewIsland(1,1);
+        PlayerStructure st = PlayerStructure.createNewStructure(a.user_island_id, 12,
+                5, 5, randInt(0, 1), 1.0F);
+        st.is_complete = 1;
+        st.is_upgrading = 0;
+        st.building_completed = null;
+        st.date_created = null;
+        st.last_collection = null;
+        System.out.println(st.toSFSObject().getDump());
     }
 }
