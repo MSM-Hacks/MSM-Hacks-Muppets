@@ -529,6 +529,7 @@ public class MuppetsExtension extends SFSExtension {
                     response.putUtfString("message", "Error");
                     send("gs_buy_egg", response, sender);
                 }
+                break;
             }
             case "gs_speed_up_hatching": {
                 long user_structure_id = params.getLong("user_structure_id");
@@ -543,13 +544,27 @@ public class MuppetsExtension extends SFSExtension {
                     response.putSFSObject("user_egg", egg);
                     response.putSFSArray("properties", player.getProperties());
                     response.putBool("success", true);
-                    response.putBool("remove_buyback", false);
                     send("gs_speed_up_hatching", response, sender);
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error");
                     send("gs_speed_up_hatching", response, sender);
                 }
+                break;
+            }
+            case "gs_sell_egg": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.sellEgg(user_structure_id)) {
+                    response.putSFSArray("properties", player.getProperties());
+                    response.putBool("success", true);
+                    send("gs_sell_egg", response, sender);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error");
+                    send("gs_sell_egg", response, sender);
+                }
+                break;
             }
             default:
                 params.putBool("success", false);

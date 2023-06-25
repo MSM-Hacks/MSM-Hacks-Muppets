@@ -388,7 +388,7 @@ public class Player {
 
         Monster monster = Monster.getMonsterByID(monster_id);
         if (addBalances(monster.cost_coins*-1, monster.cost_diamonds*-1, 0, 0, false)) {
-            PlayerStructure.addEggToStructure(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
+            PlayerStructure.setupEgg(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
             return System.currentTimeMillis() + monster.build_time*1000;
         } else {
             return null;
@@ -399,7 +399,18 @@ public class Player {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
             if (playerStructure.obj_data != null && addBalances(0, getSpeedupCost(System.currentTimeMillis(), playerStructure.obj_end)*-1,0,0, false)) {
-                PlayerStructure.speedUpEgg(user_structure_id);
+                PlayerStructure.setupEgg(user_structure_id, playerStructure.obj_data, System.currentTimeMillis()+1500);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean sellEgg(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            if (playerStructure.obj_data != null && addBalances((int) Math.round(Monster.getMonsterByID(playerStructure.obj_data).cost_coins*0.75), 0,0,0, false)) {
+                PlayerStructure.setupEgg(user_structure_id, null, null);
                 return true;
             }
         }

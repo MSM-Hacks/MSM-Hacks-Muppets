@@ -319,20 +319,12 @@ public class PlayerStructure {
         return true;
     }
 
-    public static void addEggToStructure(long user_structure_id, int obj_data, long obj_end) {
+    public static void setupEgg(long user_structure_id, Integer obj_data, Long obj_end) {
         PlayerStructure structure = getStructure(user_structure_id);
         structure.obj_data = obj_data;
         structure.obj_end = obj_end;
 
         PlayerDatabaseManager.executeVoid("UPDATE player_structures SET obj_data = %s, obj_end = %s WHERE user_structure_id = %s;",
-                new Object[]{obj_data, obj_end, user_structure_id});
-    }
-
-    public static void speedUpEgg(long user_structure_id) {
-        PlayerStructure structure = getStructure(user_structure_id);
-        structure.obj_end = System.currentTimeMillis();
-
-        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET obj_end = %s WHERE user_structure_id = %s;",
-                new Object[]{structure.obj_end, user_structure_id});
+                new Object[]{obj_data==null?0:obj_data, obj_end==null?0:obj_end, user_structure_id});
     }
 }
