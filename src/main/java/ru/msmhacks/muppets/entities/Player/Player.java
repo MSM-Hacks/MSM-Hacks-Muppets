@@ -30,11 +30,11 @@ public class Player {
 
     public String display_name = "New player";
 
-    public int coins = 50000000; //1200
+    public int coins = 5000; //1200
     public int diamonds = 20; //17
     public int food = 2500; //0
     public int xp = 655; //0
-    public int level = 25; //1
+    public int level = 5; //1
     public int bbb_id = 1000;
     public int daily_reward_level = 1;
 
