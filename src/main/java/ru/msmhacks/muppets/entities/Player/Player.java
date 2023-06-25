@@ -331,7 +331,7 @@ public class Player {
         }
         return null;
     }
-    public PlayerStructure speedupObstacle(long user_structure_id) {
+    public PlayerStructure speedupStrucutre(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
             Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);

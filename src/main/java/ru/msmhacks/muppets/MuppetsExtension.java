@@ -323,9 +323,10 @@ public class MuppetsExtension extends SFSExtension {
                 send("gs_start_obstacle", response, sender);
                 break;
             }
+            case "gs_speed_up_structure":
             case "gs_clear_obstacle_speed_up": {
                 long user_structure_id = params.getLong("user_structure_id");
-                PlayerStructure newStructure = player.speedupObstacle(user_structure_id);
+                PlayerStructure newStructure = player.speedupStrucutre(user_structure_id);
                 if (newStructure != null) {
                     response.putBool("success", true);
                     response.putLong("user_structure_id", user_structure_id);
@@ -343,14 +344,14 @@ public class MuppetsExtension extends SFSExtension {
 
                     response.putSFSArray("properties", properties);
 
-                    send("gs_clear_obstacle_speed_up", response, sender);
+                    send(cmd, response, sender);
                     send("gs_update_structure", response, sender);
                     break;
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error start obstacle");
                 }
-                send("gs_clear_obstacle_speed_up", response, sender);
+                send(cmd, response, sender);
                 break;
             }
             case "gs_clear_obstacle": {

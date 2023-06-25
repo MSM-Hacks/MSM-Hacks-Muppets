@@ -263,7 +263,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{357, 358};
 
                 nursery = new int[]{41, 26};
-                castle = new int[]{265,35,38};
+                castle = new int[]{265,40,39};
                 break;
             }
             default: {
