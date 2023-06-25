@@ -394,4 +394,15 @@ public class Player {
             return null;
         }
     }
+
+    public boolean speedUpEgg(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            if (playerStructure.obj_data != null && addBalances(0, getSpeedupCost(System.currentTimeMillis(), playerStructure.obj_end)*-1,0,0, false)) {
+                PlayerStructure.speedUpEgg(user_structure_id);
+                return true;
+            }
+        }
+        return false;
+    }
 }

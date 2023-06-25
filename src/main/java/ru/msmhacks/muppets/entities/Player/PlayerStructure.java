@@ -328,5 +328,11 @@ public class PlayerStructure {
                 new Object[]{obj_data, obj_end, user_structure_id});
     }
 
+    public static void speedUpEgg(long user_structure_id) {
+        PlayerStructure structure = getStructure(user_structure_id);
+        structure.obj_end = System.currentTimeMillis();
 
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET obj_end = %s WHERE user_structure_id = %s;",
+                new Object[]{structure.obj_end, user_structure_id});
+    }
 }

@@ -530,6 +530,27 @@ public class MuppetsExtension extends SFSExtension {
                     send("gs_buy_egg", response, sender);
                 }
             }
+            case "gs_speed_up_hatching": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.speedUpEgg(user_structure_id)) {
+                    PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+
+                    SFSObject egg = new SFSObject();
+                    egg.putLong("obj_end", playerStructure.obj_end);
+                    egg.putInt("obj_data", playerStructure.obj_data);
+
+                    response.putSFSObject("user_egg", egg);
+                    response.putSFSArray("properties", player.getProperties());
+                    response.putBool("success", true);
+                    response.putBool("remove_buyback", false);
+                    send("gs_speed_up_hatching", response, sender);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error");
+                    send("gs_speed_up_hatching", response, sender);
+                }
+            }
             default:
                 params.putBool("success", false);
                 send(cmd, params, sender);
