@@ -272,7 +272,7 @@ public class PlayerStructure {
         playerStructure.is_upgrading = 1;
         playerStructure.is_complete = 0;
         playerStructure.date_created = System.currentTimeMillis();
-        playerStructure.building_completed = System.currentTimeMillis() + newStructure.build_time;
+        playerStructure.building_completed = System.currentTimeMillis() + newStructure.build_time*1000;
 
         PlayerDatabaseManager.executeVoid("UPDATE player_structures SET is_upgrading = 1, is_complete = 0, date_created = %s," +
                         "building_completed = %s WHERE user_structure_id = %s;",

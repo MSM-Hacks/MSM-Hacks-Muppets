@@ -30,11 +30,11 @@ public class Player {
 
     public String display_name = "New player";
 
-    public int coins = 5000; //1200
+    public int coins = 50000000; //1200
     public int diamonds = 20; //17
     public int food = 2500; //0
     public int xp = 655; //0
-    public int level = 5; //1
+    public int level = 25; //1
     public int bbb_id = 1000;
     public int daily_reward_level = 1;
 
@@ -49,7 +49,11 @@ public class Player {
         player.player_id = player_id;
         player.bbb_id = bbb_id;
 
-        PlayerIsland first_island = PlayerIsland.createNewIsland(bbb_id, 1);
+        PlayerIsland first_island = PlayerIsland.createNewIsland(bbb_id, 4);
+        //PlayerIsland.createNewIsland(bbb_id, 2);
+        //PlayerIsland.createNewIsland(bbb_id, 3);
+        //PlayerIsland.createNewIsland(bbb_id, 4);
+        //PlayerIsland.createNewIsland(bbb_id, 5);
         player.active_island = first_island.user_island_id;
 
         players.put(player_id, player);

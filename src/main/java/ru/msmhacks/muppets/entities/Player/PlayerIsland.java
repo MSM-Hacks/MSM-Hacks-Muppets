@@ -189,9 +189,9 @@ public class PlayerIsland {
     }
 
     public void fillIsland() {
-        int[][] places_3;
-        int[][] places_2;
-        int[][] places_1;
+        int[][] places_3; //Dumpster, Crates, Piano, Heap, Bucket, Luggage
+        int[][] places_2; //Bag 02
+        int[][] places_1; //Bag 01, Pylon
 
         int[] objects_3;
         int[] objects_2;
@@ -215,16 +215,16 @@ public class PlayerIsland {
                 break;
             }
             case 2: {
-                places_3 = new int[][]{};
-                places_2 = new int[][]{};
-                places_1 = new int[][]{};
+                places_3 = new int[][]{{45,17},{32,5},{27,2}};
+                places_2 = new int[][]{{46,20},{36,6},{25,8},{30,2},{41,24},{43,13},{32,2},{40,9},{30,9}};
+                places_1 = new int[][]{{36,12},{41,22},{44,23},{49,19},{48,17},{46,23},{45,13},{38,18},{39,24},{30,5},{38,6},{26,4},{25,3},{26,5},{27,8},{42,9},{42,11},{44,16},{24,9},{39,7}};
 
-                objects_3 = new int[]{};
-                objects_2 = new int[]{};
-                objects_1 = new int[]{};
+                objects_3 = new int[]{198, 255, 197, 252, 253};
+                objects_2 = new int[]{251};
+                objects_1 = new int[]{254, 250};
 
-                nursery = new int[]{};
-                castle = new int[]{};
+                nursery = new int[]{10, 10};
+                castle = new int[]{213,49,23};
                 break;
             }
             case 3: {
@@ -232,12 +232,12 @@ public class PlayerIsland {
                 places_2 = new int[][]{};
                 places_1 = new int[][]{};
 
-                objects_3 = new int[]{};
-                objects_2 = new int[]{};
-                objects_1 = new int[]{};
+                objects_3 = new int[]{188, 195, 189, 192, 193, 196};
+                objects_2 = new int[]{191};
+                objects_1 = new int[]{194, 190};
 
-                nursery = new int[]{};
-                castle = new int[]{};
+                nursery = new int[]{17, 13};
+                castle = new int[]{218,48,28};
                 break;
             }
             case 4: {
@@ -245,12 +245,12 @@ public class PlayerIsland {
                 places_2 = new int[][]{};
                 places_1 = new int[][]{};
 
-                objects_3 = new int[]{};
-                objects_2 = new int[]{};
-                objects_1 = new int[]{};
+                objects_3 = new int[]{351, 352, 353, 355, 356};
+                objects_2 = new int[]{354};
+                objects_1 = new int[]{350};
 
-                nursery = new int[]{};
-                castle = new int[]{};
+                nursery = new int[]{25, 7};
+                castle = new int[]{259,23,26};
                 break;
             }
             case 5: {
@@ -258,12 +258,12 @@ public class PlayerIsland {
                 places_2 = new int[][]{};
                 places_1 = new int[][]{};
 
-                objects_3 = new int[]{};
-                objects_2 = new int[]{};
-                objects_1 = new int[]{};
+                objects_3 = new int[]{359, 360, 362, 363};
+                objects_2 = new int[]{361};
+                objects_1 = new int[]{357, 358};
 
-                nursery = new int[]{};
-                castle = new int[]{};
+                nursery = new int[]{41, 26};
+                castle = new int[]{265,35,38};
                 break;
             }
             default: {
@@ -275,8 +275,8 @@ public class PlayerIsland {
                 objects_2 = new int[]{};
                 objects_1 = new int[]{};
 
-                nursery = new int[]{};
-                castle = new int[]{};
+                nursery = new int[]{1,1,1};
+                castle = new int[]{1,1,1};
                 break;
             }
         }
