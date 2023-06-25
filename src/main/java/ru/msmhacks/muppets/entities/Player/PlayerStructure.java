@@ -196,6 +196,7 @@ public class PlayerStructure {
 
         try {
             rs = stmt.executeQuery(sql);
+            rs.getLong("user_structure_id");
             return rs.next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -215,6 +216,23 @@ public class PlayerStructure {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Long getStructureOnIslandByStructureType(long user_island_id, int structure_id) {
+        String sql = SQLiteQueryBuilder.select("*")
+                .from("player_structures")
+                .where("user_island_id = " + user_island_id + " AND structure = " + structure_id)
+                .build();
+        ResultSet rs = null;
+
+        try {
+            rs = stmt.executeQuery(sql);
+            if (rs.next())
+                return rs.getLong("user_structure_id");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     public static void moveStructure(long user_structure_id, int x, int y, float scale) {
@@ -300,4 +318,15 @@ public class PlayerStructure {
 
         return true;
     }
+
+    public static void addEggToStructure(long user_structure_id, int obj_data, long obj_end) {
+        PlayerStructure structure = getStructure(user_structure_id);
+        structure.obj_data = obj_data;
+        structure.obj_end = obj_end;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET obj_data = %s, obj_end = %s WHERE user_structure_id = %s;",
+                new Object[]{obj_data, obj_end, user_structure_id});
+    }
+
+
 }

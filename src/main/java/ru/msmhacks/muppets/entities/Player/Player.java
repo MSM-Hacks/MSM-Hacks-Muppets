@@ -377,4 +377,21 @@ public class Player {
         }
         return null;
     }
+
+    public Long buyEgg(int monster_id) {
+        Long st1 = PlayerStructure.getStructureOnIslandByStructureType(active_island, 1);
+        Long st2 = PlayerStructure.getStructureOnIslandByStructureType(active_island, 324);
+        Long st = st1==null?st2==null?null:st2:st1;
+
+        if (st == null)
+            return null;
+
+        Monster monster = Monster.getMonsterByID(monster_id);
+        if (addBalances(monster.cost_coins*-1, monster.cost_diamonds*-1, 0, 0, false)) {
+            PlayerStructure.addEggToStructure(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
+            return System.currentTimeMillis() + monster.build_time*1000;
+        } else {
+            return null;
+        }
+    }
 }

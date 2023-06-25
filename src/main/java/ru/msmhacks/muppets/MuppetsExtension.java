@@ -513,15 +513,22 @@ public class MuppetsExtension extends SFSExtension {
             case "gs_buy_egg": {
                 int monster_id = params.getInt("monster_id");
 
-                SFSObject egg = new SFSObject();
-                egg.putLong("obj_end", System.currentTimeMillis() + Monster.getMonsterByID(monster_id).build_time*1000);
-                egg.putInt("obj_data", monster_id);
+                Long date_end = player.buyEgg(monster_id);
+                if (date_end != null) {
+                    SFSObject egg = new SFSObject();
+                    egg.putLong("obj_end", date_end);
+                    egg.putInt("obj_data", monster_id);
 
-                response.putSFSObject("user_egg", egg);
-                response.putSFSArray("properties", player.getProperties());
-                response.putBool("success", true);
-                response.putBool("remove_buyback", false);
-                send("gs_buy_egg", response, sender);
+                    response.putSFSObject("user_egg", egg);
+                    response.putSFSArray("properties", player.getProperties());
+                    response.putBool("success", true);
+                    response.putBool("remove_buyback", false);
+                    send("gs_buy_egg", response, sender);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error");
+                    send("gs_buy_egg", response, sender);
+                }
             }
             default:
                 params.putBool("success", false);
