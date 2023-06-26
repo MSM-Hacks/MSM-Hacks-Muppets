@@ -1,5 +1,6 @@
 package ru.msmhacks.muppets.managers;
 
+import com.alexfu.sqlitequerybuilder.api.SQLiteQueryBuilder;
 import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import ru.msmhacks.muppets.MuppetsExtension;
@@ -9,10 +10,7 @@ import ru.msmhacks.muppets.entities.Player.PlayerIsland;
 import ru.msmhacks.muppets.entities.Player.PlayerStructure;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import static ru.msmhacks.muppets.managers.Utils.log;
 
@@ -75,5 +73,21 @@ public class PlayerDatabaseManager {
         }
     }
 
+    public static Object getMaximumData(String table, String column) {
+        String sql = SQLiteQueryBuilder.select("MAX("+column+")")
+                .from(table)
+                .build();
+        log(sql);
+        ResultSet rs = null;
 
+        try {
+            rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 }

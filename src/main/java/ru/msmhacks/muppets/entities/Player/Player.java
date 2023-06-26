@@ -49,7 +49,7 @@ public class Player {
         player.player_id = player_id;
         player.bbb_id = bbb_id;
 
-        PlayerIsland first_island = PlayerIsland.createNewIsland(bbb_id, 4);
+        PlayerIsland first_island = PlayerIsland.createNewIsland(bbb_id, 1);
         //PlayerIsland.createNewIsland(bbb_id, 2);
         //PlayerIsland.createNewIsland(bbb_id, 3);
         //PlayerIsland.createNewIsland(bbb_id, 4);
@@ -159,6 +159,16 @@ public class Player {
                 players.put(pl.player_id, pl);
             }
         } catch (SQLException e) {}
+
+        if (!players.containsKey("service")) {
+            log("Creating service account");
+            Player player = new Player();
+            player.player_id = "service";
+            player.bbb_id = -1;
+
+            players.put("service", player);
+            try {player.importToDB();} catch (SQLException ignored) {}
+        }
     }
 
     public SFSArray getProperties() {

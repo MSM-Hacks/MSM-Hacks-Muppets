@@ -13,7 +13,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.getMaximumData;
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
+import static ru.msmhacks.muppets.managers.Utils.log;
 
 public class PlayerStructure {
     public static HashMap<Long, PlayerStructure> structures = new HashMap<>();
@@ -42,7 +44,7 @@ public class PlayerStructure {
         Utils.log("Creating new structure");
         PlayerStructure structure = new PlayerStructure();
         structure.user_island_id = user_island_id;
-        structure.user_structure_id = structures.size();
+        structure.user_structure_id = getMaximumData("player_structures", "user_structure_id")==null?0:(long)getMaximumData("player_structures", "user_structure_id")+1;
         structure.structure = structure_id;
         structure.pos_x = x;
         structure.pos_y = y;
@@ -158,6 +160,15 @@ public class PlayerStructure {
             }
         } catch (SQLException e) {}
 
+        if (!structures.containsKey(-1L)) {
+            log("Creating service structure");
+            PlayerStructure structure1 = new PlayerStructure();
+            structure1.user_structure_id = -1;
+            structure1.user_island_id = -1;
+
+            structures.put(-1L, structure1);
+            try {structure1.importToDB();} catch (SQLException ignored) {}
+        }
     }
 
     public static PlayerStructure[] getStructuresOnIsland(long user_island_id) {

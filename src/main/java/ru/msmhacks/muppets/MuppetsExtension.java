@@ -31,7 +31,7 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    public static final boolean prod = false;
+    public static final boolean prod = true;
     public static String DBROOT = prod?"/root/server/mms/":"C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
 
     @Override
@@ -471,11 +471,11 @@ public class MuppetsExtension extends SFSExtension {
                         send("gs_update_properties", response, sender);
                         break;
                     case "600666006":
-                        int newbbb_id = player.bbb_id;
-                        player.removePlayer();
-                        Player.createNewPlayer(player.player_id, newbbb_id);
+                        //int newbbb_id = player.bbb_id;
+                        //player.removePlayer();
+                        //Player.createNewPlayer(player.player_id, newbbb_id);
 
-                        break;
+                        //break;
                     }
 
                 sender.disconnect(new IDisconnectionReason() {
