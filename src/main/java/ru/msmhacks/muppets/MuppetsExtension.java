@@ -15,6 +15,7 @@ import ru.msmhacks.muppets.auth.AuthServer;
 import ru.msmhacks.muppets.entities.*;
 import ru.msmhacks.muppets.entities.Player.Player;
 import ru.msmhacks.muppets.entities.Player.PlayerIsland;
+import ru.msmhacks.muppets.entities.Player.PlayerMonster;
 import ru.msmhacks.muppets.entities.Player.PlayerStructure;
 import ru.msmhacks.muppets.managers.AuthDatabaseManager;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
@@ -31,7 +32,7 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    public static final boolean prod = true;
+    public static final boolean prod = false;
     public static String DBROOT = prod?"/root/server/mms/":"C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
 
     @Override
@@ -43,7 +44,7 @@ public class MuppetsExtension extends SFSExtension {
             runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
             AuthDatabaseManager.init(true);
             StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(true);
+            PlayerDatabaseManager.initAllDatabases(false);
         } catch (Exception e) {
             trace(e.getStackTrace());
         }
@@ -564,6 +565,103 @@ public class MuppetsExtension extends SFSExtension {
                     response.putUtfString("message", "Error");
                     send("gs_sell_egg", response, sender);
                 }
+                break;
+            }
+            case "gs_hatch_egg": {
+                long user_structure_id = params.getLong("user_structure_id");
+                int x = params.getInt("pos_x");
+                int y = params.getInt("pos_y");
+                boolean flip = params.getBool("flip");
+
+                PlayerMonster newMonster = player.hatchEgg(user_structure_id, x, y, flip);
+                if (newMonster != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_monster_id", newMonster.user_monster_id);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putSFSArray("properties", player.getProperties());
+                    send("gs_hatch_egg", response, sender);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error");
+                    send("gs_hatch_egg", response, sender);
+                }
+                break;
+            }
+            //Monsters
+            case "gs_move_monster": {
+                int x = params.getInt("pos_x");
+                int y = params.getInt("pos_y");
+                float scale = params.getDouble("scale").floatValue();
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.moveStructure(user_structure_id, x, y, scale);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("pos_x", newStructure.pos_x);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("pos_y", newStructure.pos_y);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putDouble("scale", newStructure.scale);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error move stricture");
+                }
+                send("gs_move_structure", response, sender);
+                break;
+            }
+            case "gs_flip_monster": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.flipStructure(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = new SFSArray();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("flip", newStructure.flip);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+
+                    send("gs_flip_structure", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_structure", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error flip stricture");
+                }
+                send("gs_flip_structure", response, sender);
+                break;
+            }
+            case "gs_sell_monster": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.sellStructure(user_structure_id) != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSArray("properties", player.getProperties());
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error sell stricture");
+                }
+                send("gs_sell_structure", response, sender);
                 break;
             }
             default:

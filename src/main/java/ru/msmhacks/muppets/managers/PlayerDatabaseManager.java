@@ -7,6 +7,7 @@ import ru.msmhacks.muppets.MuppetsExtension;
 import ru.msmhacks.muppets.entities.*;
 import ru.msmhacks.muppets.entities.Player.Player;
 import ru.msmhacks.muppets.entities.Player.PlayerIsland;
+import ru.msmhacks.muppets.entities.Player.PlayerMonster;
 import ru.msmhacks.muppets.entities.Player.PlayerStructure;
 
 import java.io.File;
@@ -27,6 +28,7 @@ public class PlayerDatabaseManager {
             Player.dropPlayersDatabase();
             PlayerIsland.dropPlayerIslandsDatabase();
             PlayerStructure.dropPlayerStructuresDatabase();
+            PlayerMonster.dropPlayerMonstersDatabase();
         }
 
         log("[DB Loader] Loading players databases...");
@@ -39,6 +41,9 @@ public class PlayerDatabaseManager {
 
         PlayerStructure.initPlayerStructuresDatabase();
         log("[DB Loader] Loaded " + PlayerStructure.structures.size() + " player structures");
+
+        PlayerMonster.initPlayerMonstersDatabase();
+        log("[DB Loader] Loaded " +  PlayerMonster.monsters.size() + " player monsters");
     }
 
 
@@ -77,7 +82,6 @@ public class PlayerDatabaseManager {
         String sql = SQLiteQueryBuilder.select("MAX("+column+")")
                 .from(table)
                 .build();
-        log(sql);
         ResultSet rs = null;
 
         try {

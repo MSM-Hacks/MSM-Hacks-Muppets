@@ -32,8 +32,6 @@ public class PlayerIsland {
     public int island = 0;
     public int[] beds = {4,0};
 
-    public SFSArray monsters = new SFSArray();
-
     public static PlayerIsland createNewIsland(int bbb_id, int island_id) {
         Utils.log("Creating new island");
 
@@ -75,8 +73,11 @@ public class PlayerIsland {
         }
         island.putSFSArray("structures", structures);
 
+        SFSArray monsters = new SFSArray();
+        for (PlayerMonster monster : PlayerMonster.getMonstersOnIsland(user_island_id)) {
+            monsters.addSFSObject(monster.toSFSObject());
+        }
         island.putSFSArray("monsters", monsters);
-        island.putSFSArray("structures", structures);
 
         return island;
     }
@@ -274,7 +275,7 @@ public class PlayerIsland {
                 objects_1 = new int[]{357, 358};
 
                 nursery = new int[]{41, 26};
-                castle = new int[]{265,40,39};
+                castle = new int[]{266,40,39};
                 break;
             }
             default: {

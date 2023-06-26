@@ -293,8 +293,9 @@ public class Player {
     public PlayerStructure buyStructure(int structure_id, int x, int y, int flip, float scale) {
         Structure structure = Structure.getStructureByID(structure_id);
 
-        if (structure.structure_type != "decoration" && PlayerStructure.isIslandHasStructure(active_island, structure_id)) {
-            return null;
+        if (!structure.structure_type.equals("decoration")) {
+            if (PlayerStructure.isIslandHasStructureType(active_island, structure_id))
+                return null;
         }
         if (addBalances(structure.cost_coins*-1, structure.cost_diamonds*-1, 0, structure.xp, false)) {
             PlayerStructure playerStructure = PlayerStructure.createNewStructure(active_island, structure_id, x, y, flip, scale);
@@ -425,5 +426,20 @@ public class Player {
             }
         }
         return false;
+    }
+
+    public PlayerMonster hatchEgg(long user_structure_id, int x, int y, boolean flip) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            if (playerStructure.obj_data != null) {
+                Monster newMonster = Monster.getMonsterByID(playerStructure.obj_data);
+                PlayerStructure.setupEgg(user_structure_id, null, null);
+
+                PlayerMonster playerMonster = PlayerMonster.createNewMonster(active_island, newMonster.monster_id, x, y, flip?1:0, 1.0F);
+                addBalances(0,0,0, newMonster.xp, false);
+                return playerMonster;
+            }
+        }
+        return null;
     }
 }

@@ -150,7 +150,7 @@ public class PlayerStructure {
                 pi.is_upgrading = rs.getInt("is_upgrading");
                 pi.structure = rs.getInt("structure");
                 pi.scale = rs.getFloat("scale");
-                pi.building_completed = rs.getInt("building_completed")==0?null:rs.getLong("building_completed");
+                pi.building_completed = rs.getLong("building_completed")==0?null:rs.getLong("building_completed");
                 pi.date_created = rs.getLong("date_created")==0?null:rs.getLong("date_created");
                 pi.last_collection = rs.getLong("last_collection")==0?null:rs.getLong("last_collection");
                 pi.obj_data = rs.getInt("obj_data")==0?null:rs.getInt("obj_data");
