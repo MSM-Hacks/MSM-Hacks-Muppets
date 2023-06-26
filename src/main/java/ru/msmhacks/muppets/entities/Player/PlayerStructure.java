@@ -264,6 +264,15 @@ public class PlayerStructure {
                 new Object[]{newFlip, user_structure_id});
     }
 
+    public static void muteStructure(long user_structure_id) {
+        int muted = getStructure(user_structure_id).muted;
+        int newMuted = muted==0?1:0;
+        getStructure(user_structure_id).flip = newMuted;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_structures SET muted = %s WHERE user_structure_id = %s;",
+                new Object[]{newMuted, user_structure_id});
+    }
+
     public static void startClearingStructure(long user_structure_id) {
         PlayerStructure playerStructure = getStructure(user_structure_id);
         Structure structure1 = Structure.getStructureByID(playerStructure.structure);

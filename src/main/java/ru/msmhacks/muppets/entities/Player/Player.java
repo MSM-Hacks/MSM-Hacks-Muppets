@@ -320,11 +320,18 @@ public class Player {
         return null;
     }
 
+    public PlayerStructure muteStructure(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure.muteStructure(user_structure_id);
+            return getStructure(user_structure_id);
+        }
+        return null;
+    }
     public Boolean sellStructure(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             Structure structure = Structure.structures_fastdb.get(getStructure(user_structure_id).structure);
             if (getStructure(user_structure_id).is_complete==1) {
-                addBalances(structure.cost_coins * -1, structure.cost_diamonds * -1, 0, 0, false);
+                addBalances(structure.cost_coins, 0, 0, 0, false);
                 PlayerStructure.removeStructure(user_structure_id);
                 return true;
             }
@@ -398,7 +405,13 @@ public class Player {
             return null;
 
         Monster monster = Monster.getMonsterByID(monster_id);
-        if (addBalances(monster.cost_coins*-1, monster.cost_diamonds*-1, 0, 0, false)) {
+
+        int cost_coins = 0;
+
+        if (monster.cost_diamonds == 0)
+            cost_coins = monster.cost_coins;
+
+        if (addBalances(cost_coins*-1, monster.cost_diamonds*-1, 0, 0, false)) {
             PlayerStructure.setupEgg(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
             return System.currentTimeMillis() + monster.build_time*1000;
         } else {
@@ -439,6 +452,40 @@ public class Player {
                 addBalances(0,0,0, newMonster.xp, false);
                 return playerMonster;
             }
+        }
+        return null;
+    }
+
+    public PlayerMonster moveMonster(long user_monster_id, int x, int y, float scale) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            PlayerMonster.moveMonster(user_monster_id, x, y, scale);
+            return PlayerMonster.getMonster(user_monster_id);
+        }
+        return null;
+    }
+
+    public PlayerMonster flipMonster(long user_monster_id) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            PlayerMonster.flipMonster(user_monster_id);
+            return PlayerMonster.getMonster(user_monster_id);
+        }
+        return null;
+    }
+
+    public PlayerMonster muteMonster(long user_monster_id) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            PlayerMonster.muteMonster(user_monster_id);
+            return PlayerMonster.getMonster(user_monster_id);
+        }
+        return null;
+    }
+
+    public Boolean sellMonster(long user_monster_id) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            Monster monster = Monster.getMonsterByID(PlayerMonster.getMonster(user_monster_id).monster);
+            addBalances(monster.cost_coins , 0, 0, 0, false);
+            PlayerMonster.removeMonster(user_monster_id);
+            return true;
         }
         return null;
     }

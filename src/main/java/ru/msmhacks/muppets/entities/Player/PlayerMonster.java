@@ -226,6 +226,15 @@ public class PlayerMonster {
                 new Object[]{newFlip, user_monster_id});
     }
 
+    public static void muteMonster(long user_monster_id) {
+        int muted = getMonster(user_monster_id).muted;
+        int newMuted = muted==0?1:0;
+        getMonster(user_monster_id).flip = newMuted;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_monsters SET muted = %s WHERE user_monster_id = %s;",
+                new Object[]{newMuted, user_monster_id});
+    }
+
     public static void removeMonster(long user_monster_id) {
         monsters.remove(user_monster_id);
 

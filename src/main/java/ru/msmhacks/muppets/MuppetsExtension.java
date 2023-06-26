@@ -276,6 +276,33 @@ public class MuppetsExtension extends SFSExtension {
                 send("gs_flip_structure", response, sender);
                 break;
             }
+            case "gs_mute_structure": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.muteStructure(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = new SFSArray();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("muted", newStructure.muted);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+
+                    send("gs_mute_structure", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_structure", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error mute stricture");
+                }
+                send("gs_mute_structure", response, sender);
+                break;
+            }
             case "gs_sell_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
 
@@ -579,6 +606,7 @@ public class MuppetsExtension extends SFSExtension {
                     response.putLong("user_monster_id", newMonster.user_monster_id);
                     response.putLong("user_structure_id", user_structure_id);
                     response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putSFSObject("structure", PlayerStructure.getStructure(user_structure_id).toSFSObject());
                     response.putSFSArray("properties", player.getProperties());
                     send("gs_hatch_egg", response, sender);
                 } else {
@@ -592,76 +620,101 @@ public class MuppetsExtension extends SFSExtension {
             case "gs_move_monster": {
                 int x = params.getInt("pos_x");
                 int y = params.getInt("pos_y");
-                float scale = params.getDouble("scale").floatValue();
-                long user_structure_id = params.getLong("user_structure_id");
+                float volume = 1.0F;
+                long user_monster_id = params.getLong("user_monster_id");
 
-                PlayerStructure newStructure = player.moveStructure(user_structure_id, x, y, scale);
-                if (newStructure != null) {
+                PlayerMonster newMonster = player.moveMonster(user_monster_id, x, y, volume);
+                if (newMonster != null) {
                     response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
-                    response.putSFSObject("user_structure", newStructure.toSFSObject());
-
-                    SFSArray properties = player.getProperties();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putInt("pos_x", newStructure.pos_x);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putInt("pos_y", newStructure.pos_y);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putDouble("scale", newStructure.scale);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
-                } else {
-                    response.putBool("success", false);
-                    response.putUtfString("message", "Error move stricture");
-                }
-                send("gs_move_structure", response, sender);
-                break;
-            }
-            case "gs_flip_monster": {
-                long user_structure_id = params.getLong("user_structure_id");
-
-                PlayerStructure newStructure = player.flipStructure(user_structure_id);
-                if (newStructure != null) {
-                    response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
-                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+                    response.putLong("user_monster_id", user_monster_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
 
                     SFSArray properties = new SFSArray();
 
                     SFSObject prop = new SFSObject();
-                    prop.putInt("flip", newStructure.flip);
+                    prop.putInt("pos_x", newMonster.pos_x);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putInt("pos_y", newMonster.pos_y);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putDouble("volume", newMonster.volume);
                     properties.addSFSObject(prop);
 
                     response.putSFSArray("properties", properties);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error move monster");
+                }
+                send("gs_move_monster", response, sender);
+                break;
+            }
+            case "gs_flip_monster": {
+                long user_monster_id = params.getLong("user_monster_id");
 
-                    send("gs_flip_structure", SFSObject.newFromJsonData("{\"success\":true}"), sender);
-                    send("gs_update_structure", response, sender);
+                PlayerMonster newMonster = player.flipMonster(user_monster_id);
+                if (newMonster != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_monster_id", user_monster_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
+
+                    SFSArray properties = new SFSArray();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("flip", newMonster.flip);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    send("gs_flip_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_monster", response, sender);
                     break;
                 } else {
                     response.putBool("success", false);
-                    response.putUtfString("message", "Error flip stricture");
+                    response.putUtfString("message", "Error flip monster");
+                    send("gs_flip_monster", response, sender);
                 }
-                send("gs_flip_structure", response, sender);
+                break;
+            }
+            case "gs_mute_monster": {
+                long user_monster_id = params.getLong("user_monster_id");
+
+                PlayerMonster newMonster = player.muteMonster(user_monster_id);
+                if (newMonster != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_monster_id", user_monster_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
+
+                    SFSArray properties = new SFSArray();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putInt("muted", newMonster.muted);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+                    send("gs_mute_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_monster", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error mute monster");
+                    send("gs_mute_monster", response, sender);
+                }
                 break;
             }
             case "gs_sell_monster": {
-                long user_structure_id = params.getLong("user_structure_id");
+                long user_monster_id = params.getLong("user_monster_id");
 
-                if (player.sellStructure(user_structure_id) != null) {
+                if (player.sellMonster(user_monster_id) != null) {
                     response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
+                    response.putLong("user_monster_id", user_monster_id);
                     response.putSFSArray("properties", player.getProperties());
                 } else {
                     response.putBool("success", false);
-                    response.putUtfString("message", "Error sell stricture");
+                    response.putUtfString("message", "Error sell monster");
                 }
-                send("gs_sell_structure", response, sender);
+                send("gs_sell_monster", response, sender);
                 break;
             }
             default:
