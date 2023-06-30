@@ -474,7 +474,7 @@ public class MuppetsExtension extends SFSExtension {
             case "gs_referral_request": {
                 String code = String.valueOf(params.getLong("referring_bbb_id"));
                 switch (code) {
-                    case "880080088":
+                    case "9999":
                         player.coins = 999999999;
                         player.food = 999999999;
                         player.diamonds = 999999999;
@@ -486,7 +486,7 @@ public class MuppetsExtension extends SFSExtension {
 
                         send("gs_update_properties", response, sender);
                         break;
-                    case "777000777":
+                    case "5000":
                         player.coins = 5000;
                         player.food = 2500;
                         player.diamonds = 20;
@@ -498,25 +498,42 @@ public class MuppetsExtension extends SFSExtension {
 
                         send("gs_update_properties", response, sender);
                         break;
-                    case "600666006":
-                        //int newbbb_id = player.bbb_id;
-                        //player.removePlayer();
-                        //Player.createNewPlayer(player.player_id, newbbb_id);
+                    case "0000":
+                        for (PlayerStructure pls: PlayerStructure.getStructuresOnIsland(player.active_island)) {
+                            Structure ps = Structure.getStructureByID(pls.structure);
+                            if (ps.structure_type == "obstacle") {
+                                PlayerStructure.finishUpgradingStructure(pls.user_structure_id);
+                                response.putBool("success", true);
+                                response.putLong("user_structure_id", pls.user_structure_id);
+                                response.putSFSObject("user_structure", pls.toSFSObject());
 
-                        //break;
-                    }
+                                SFSArray properties = player.getProperties();
 
-                sender.disconnect(new IDisconnectionReason() {
-                    @Override
-                    public int getValue() {
-                        return 0;
-                    }
+                                SFSObject prop = new SFSObject();
+                                prop.putInt("structure", pls.structure);
+                                properties.addSFSObject(prop);
 
-                    @Override
-                    public byte getByteValue() {
-                        return 0;
-                    }
-                });
+                                prop = new SFSObject();
+                                prop.putLong("building_completed", pls.building_completed);
+                                properties.addSFSObject(prop);
+
+                                prop = new SFSObject();
+                                prop.putInt("is_complete", pls.is_complete);
+                                properties.addSFSObject(prop);
+
+                                prop = new SFSObject();
+                                prop.putInt("is_upgrading", pls.is_upgrading);
+                                properties.addSFSObject(prop);
+
+                                prop = new SFSObject();
+                                prop.putLong("date_created", pls.date_created);
+                                properties.addSFSObject(prop);
+
+                                response.putSFSArray("properties", properties);
+                                send("gs_finish_upgrade_structure", response, sender);
+                            }
+                        }
+                }
             }
             //Backdrops | Lightings
             case "gs_request_backdrop_change": {
