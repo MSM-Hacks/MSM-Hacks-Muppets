@@ -155,16 +155,6 @@ public class PlayerMonster {
                 monsters.put(pi.user_monster_id, pi);
             }
         } catch (SQLException e) {}
-
-        if (!monsters.containsKey(-1L)) {
-            log("Creating service monster");
-            PlayerMonster playerMonster = new PlayerMonster();
-            playerMonster.user_monster_id = -1;
-            playerMonster.user_island_id = -1;
-
-            monsters.put(-1L, playerMonster);
-            try {playerMonster.importToDB();} catch (SQLException ignored) {}
-        }
     }
 
     public static PlayerMonster[] getMonstersOnIsland(long user_island_id) {

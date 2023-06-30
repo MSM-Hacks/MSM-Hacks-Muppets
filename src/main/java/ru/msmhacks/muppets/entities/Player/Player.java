@@ -159,16 +159,6 @@ public class Player {
                 players.put(pl.player_id, pl);
             }
         } catch (SQLException e) {}
-
-        if (!players.containsKey("service")) {
-            log("Creating service account");
-            Player player = new Player();
-            player.player_id = "service";
-            player.bbb_id = -1;
-
-            players.put("service", player);
-            try {player.importToDB();} catch (SQLException ignored) {}
-        }
     }
 
     public SFSArray getProperties() {
@@ -433,9 +423,11 @@ public class Player {
     public boolean sellEgg(long user_structure_id) {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
-            if (playerStructure.obj_data != null && addBalances((int) Math.round(Monster.getMonsterByID(playerStructure.obj_data).cost_coins*0.75), 0,0,0, false)) {
-                PlayerStructure.setupEgg(user_structure_id, null, null);
-                return true;
+            if (playerStructure.obj_data != null) {
+                if (addBalances((int) Math.round(Monster.getMonsterByID(playerStructure.obj_data).cost_coins*0.75), 0,0,0, false)) {
+                    PlayerStructure.setupEgg(user_structure_id, null, null);
+                    return true;
+                }
             }
         }
         return false;

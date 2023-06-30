@@ -42,9 +42,9 @@ public class MuppetsExtension extends SFSExtension {
 
         try {
             runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
-            AuthDatabaseManager.init(true);
+            AuthDatabaseManager.init(false);
             StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(false);
+            PlayerDatabaseManager.initAllDatabases(true);
         } catch (Exception e) {
             trace(e.getStackTrace());
         }
@@ -583,15 +583,10 @@ public class MuppetsExtension extends SFSExtension {
             case "gs_sell_egg": {
                 long user_structure_id = params.getLong("user_structure_id");
 
-                if (player.sellEgg(user_structure_id)) {
-                    response.putSFSArray("properties", player.getProperties());
-                    response.putBool("success", true);
-                    send("gs_sell_egg", response, sender);
-                } else {
-                    response.putBool("success", false);
-                    response.putUtfString("message", "Error");
-                    send("gs_sell_egg", response, sender);
-                }
+                player.sellEgg(user_structure_id);
+                response.putSFSArray("properties", player.getProperties());
+                response.putBool("success", true);
+                send("gs_sell_egg", response, sender);
                 break;
             }
             case "gs_hatch_egg": {
@@ -603,12 +598,16 @@ public class MuppetsExtension extends SFSExtension {
                 PlayerMonster newMonster = player.hatchEgg(user_structure_id, x, y, flip);
                 if (newMonster != null) {
                     response.putBool("success", true);
-                    response.putLong("user_monster_id", newMonster.user_monster_id);
                     response.putLong("user_structure_id", user_structure_id);
                     response.putSFSObject("monster", newMonster.toSFSObject());
-                    response.putSFSObject("structure", PlayerStructure.getStructure(user_structure_id).toSFSObject());
                     response.putSFSArray("properties", player.getProperties());
                     send("gs_hatch_egg", response, sender);
+
+
+
+                    response = player.toSFSObject();
+                    response.putLong("server_time", System.currentTimeMillis());
+                    send("gs_player", response, sender);
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error");
@@ -628,27 +627,17 @@ public class MuppetsExtension extends SFSExtension {
                     response.putBool("success", true);
                     response.putLong("user_monster_id", user_monster_id);
                     response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putInt("pos_x", newMonster.pos_x);
+                    response.putInt("pos_y", newMonster.pos_y);
+                    response.putDouble("volume", newMonster.volume);
 
-                    SFSArray properties = new SFSArray();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putInt("pos_x", newMonster.pos_x);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putInt("pos_y", newMonster.pos_y);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putDouble("volume", newMonster.volume);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
+                    send("gs_move_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_monster", response, sender);
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error move monster");
+                    send("gs_move_monster", response, sender);
                 }
-                send("gs_move_monster", response, sender);
                 break;
             }
             case "gs_flip_monster": {
@@ -659,17 +648,10 @@ public class MuppetsExtension extends SFSExtension {
                     response.putBool("success", true);
                     response.putLong("user_monster_id", user_monster_id);
                     response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putInt("flip", newMonster.flip);
 
-                    SFSArray properties = new SFSArray();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putInt("flip", newMonster.flip);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
                     send("gs_flip_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
                     send("gs_update_monster", response, sender);
-                    break;
                 } else {
                     response.putBool("success", false);
                     response.putUtfString("message", "Error flip monster");
@@ -685,14 +667,8 @@ public class MuppetsExtension extends SFSExtension {
                     response.putBool("success", true);
                     response.putLong("user_monster_id", user_monster_id);
                     response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putInt("muted", newMonster.muted);
 
-                    SFSArray properties = new SFSArray();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putInt("muted", newMonster.muted);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
                     send("gs_mute_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
                     send("gs_update_monster", response, sender);
                     break;

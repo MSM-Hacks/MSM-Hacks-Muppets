@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.round;
 
@@ -71,6 +72,14 @@ public class Utils {
         }
 
         return round((end-start)/1800000) + 1;
+    }
+
+    public static void wait(int ms) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(ms);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

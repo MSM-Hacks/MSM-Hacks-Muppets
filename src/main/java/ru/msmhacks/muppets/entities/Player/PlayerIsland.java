@@ -134,16 +134,6 @@ public class PlayerIsland {
                 islands.put(pi.user_island_id, pi);
             }
         } catch (SQLException e) {}
-
-        if (!islands.containsKey(-1L)) {
-            log("Creating service island");
-            PlayerIsland island1 = new PlayerIsland();
-            island1.user_island_id = -1;
-            island1.user = -1;
-
-            islands.put(-1L, island1);
-            try {island1.importToDB();} catch (SQLException ignored) {}
-        }
     }
     public static PlayerIsland[] getPlayerIslands(long bbb_id) {
         String sql = SQLiteQueryBuilder.select("*")

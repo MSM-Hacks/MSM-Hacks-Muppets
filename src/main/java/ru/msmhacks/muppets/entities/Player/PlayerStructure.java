@@ -159,16 +159,6 @@ public class PlayerStructure {
                 structures.put(pi.user_structure_id, pi);
             }
         } catch (SQLException e) {}
-
-        if (!structures.containsKey(-1L)) {
-            log("Creating service structure");
-            PlayerStructure structure1 = new PlayerStructure();
-            structure1.user_structure_id = -1;
-            structure1.user_island_id = -1;
-
-            structures.put(-1L, structure1);
-            try {structure1.importToDB();} catch (SQLException ignored) {}
-        }
     }
 
     public static PlayerStructure[] getStructuresOnIsland(long user_island_id) {
