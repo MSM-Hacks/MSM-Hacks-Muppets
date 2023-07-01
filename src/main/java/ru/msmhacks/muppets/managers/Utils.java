@@ -82,4 +82,60 @@ public class Utils {
         }
     }
 
+    public static int[] getFoodData(int food_index) {
+        int foodCost, foodCount, foodTime;
+        switch (food_index) {
+            case 0:
+                foodCost = 50;
+                foodCount = 5;
+                foodTime = 30;
+                break;
+            case 1:
+                foodCost = 250;
+                foodCount = 25;
+                foodTime = 300;
+                break;
+            case 2:
+                foodCost = 1000;
+                foodCount = 100;
+                foodTime = 1800;
+                break;
+            case 3:
+                foodCost = 5000;
+                foodCount = 500;
+                foodTime = 3600;
+                break;
+            case 4:
+                foodCost = 15000;
+                foodCount = 1500;
+                foodTime = 10800;
+                break;
+            case 5:
+                foodCost = 75000;
+                foodCount = 7500;
+                foodTime = 21600;
+                break;
+            case 6:
+                foodCost = 500000;
+                foodCount = 50000;
+                foodTime = 43200;
+                break;
+            case 7:
+                foodCost = 1000000;
+                foodCount = 100000;
+                foodTime = 86400;
+                break;
+            case 8:
+                foodCost = 5000000;
+                foodCount = 500000;
+                foodTime = 172800;
+                break;
+            default:
+                foodCost = 0;
+                foodCount = 0;
+                foodTime = 0;
+        }
+        return new int[]{foodCost, foodCount, foodTime};
+    }
+
 }

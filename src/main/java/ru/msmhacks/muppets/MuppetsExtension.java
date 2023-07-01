@@ -32,7 +32,7 @@ import static ru.msmhacks.muppets.auth.AuthServer.runAuthServer;
 public class MuppetsExtension extends SFSExtension {
 
     public static MuppetsExtension extension;
-    public static final boolean prod = false;
+    public static final boolean prod = true;
     public static String DBROOT = prod?"/root/server/mms/":"C:\\Users\\Zewsic\\SmartFoxServer_2X\\res\\json_db\\";
 
     @Override
@@ -145,6 +145,13 @@ public class MuppetsExtension extends SFSExtension {
                 response = player.toSFSObject();
                 response.putLong("server_time", System.currentTimeMillis());
                 send("gs_player", response, sender);
+
+                if (player.reedemDailyReward()) {
+                    Utils.wait(5000);
+                    response = new SFSObject();
+                    response.putSFSArray("properties", player.getProperties());
+                    send("gs_update_properties", response, sender);
+                }
                 break;
             }
             case "keep_alive": {
@@ -317,85 +324,6 @@ public class MuppetsExtension extends SFSExtension {
                 send("gs_sell_structure", response, sender);
                 break;
             }
-            case "gs_start_obstacle": {
-                long user_structure_id = params.getLong("user_structure_id");
-
-                PlayerStructure newStructure = player.startObstacle(user_structure_id);
-                if (newStructure != null) {
-                    response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
-                    response.putSFSObject("user_structure", newStructure.toSFSObject());
-
-                    SFSArray properties = player.getProperties();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putLong("date_created", newStructure.date_created);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putLong("building_completed", newStructure.building_completed);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putLong("last_collection", newStructure.last_collection);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
-
-                    send("gs_start_obstacle", response, sender);
-                    break;
-                } else {
-                    response.putBool("success", false);
-                    response.putUtfString("message", "Error start obstacle");
-                }
-                send("gs_start_obstacle", response, sender);
-                break;
-            }
-            case "gs_speed_up_structure":
-            case "gs_clear_obstacle_speed_up": {
-                long user_structure_id = params.getLong("user_structure_id");
-                PlayerStructure newStructure = player.speedupStrucutre(user_structure_id);
-                if (newStructure != null) {
-                    response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
-                    response.putInt("diamonds_used", 1);
-
-                    SFSArray properties = player.getProperties();
-
-                    SFSObject prop = new SFSObject();
-                    prop.putLong("building_completed", newStructure.building_completed);
-                    properties.addSFSObject(prop);
-
-                    prop = new SFSObject();
-                    prop.putLong("date_created", newStructure.date_created);
-                    properties.addSFSObject(prop);
-
-                    response.putSFSArray("properties", properties);
-
-                    send(cmd, response, sender);
-                    send("gs_update_structure", response, sender);
-                    break;
-                } else {
-                    response.putBool("success", false);
-                    response.putUtfString("message", "Error start obstacle");
-                }
-                send(cmd, response, sender);
-                break;
-            }
-            case "gs_clear_obstacle": {
-                long user_structure_id = params.getLong("user_structure_id");
-
-                if (player.clearObstacle(user_structure_id) != null) {
-                    response.putBool("success", true);
-                    response.putLong("user_structure_id", user_structure_id);
-                    response.putSFSArray("properties", player.getProperties());
-                } else {
-                    response.putBool("success", false);
-                    response.putUtfString("message", "Error clear obstacle");
-                }
-                send("gs_clear_obstacle", response, sender);
-                break;
-            }
             case "gs_start_upgrade_structure": {
                 long user_structure_id = params.getLong("user_structure_id");
 
@@ -470,15 +398,155 @@ public class MuppetsExtension extends SFSExtension {
                 send("gs_finish_upgrade_structure", response, sender);
                 break;
             }
+            //Obstacles
+            case "gs_clear_obstacle": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.clearObstacle(user_structure_id) != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSArray("properties", player.getProperties());
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error clear obstacle");
+                }
+                send("gs_clear_obstacle", response, sender);
+                break;
+            }
+            case "gs_start_obstacle": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                PlayerStructure newStructure = player.startObstacle(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putSFSObject("user_structure", newStructure.toSFSObject());
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putLong("date_created", newStructure.date_created);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("building_completed", newStructure.building_completed);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("last_collection", newStructure.last_collection);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+
+                    send("gs_start_obstacle", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error start obstacle");
+                }
+                send("gs_start_obstacle", response, sender);
+                break;
+            }
+            case "gs_clear_obstacle_speed_up": {
+                long user_structure_id = params.getLong("user_structure_id");
+                PlayerStructure newStructure = player.speedupStrucutre(user_structure_id);
+                if (newStructure != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putInt("diamonds_used", 1);
+
+                    SFSArray properties = player.getProperties();
+
+                    SFSObject prop = new SFSObject();
+                    prop.putLong("building_completed", newStructure.building_completed);
+                    properties.addSFSObject(prop);
+
+                    prop = new SFSObject();
+                    prop.putLong("date_created", newStructure.date_created);
+                    properties.addSFSObject(prop);
+
+                    response.putSFSArray("properties", properties);
+
+                    send(cmd, response, sender);
+                    send("gs_update_structure", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error start obstacle");
+                }
+                send(cmd, response, sender);
+                break;
+            }
+            //Baking
+            case "gs_start_baking": {
+                long user_structure_id = params.getLong("user_structure_id");
+                int food_index = params.getInt("food_index");
+
+                Long obj_end = player.startBaking(user_structure_id, food_index);
+                if (obj_end != null) {
+                    response.putBool("success", true);
+                    response.putSFSArray("properties", player.getProperties());
+
+                    SFSObject userBaking = new SFSObject();
+                    userBaking.putLong("user_structure_id", user_structure_id);
+                    userBaking.putInt("obj_data", food_index);
+                    userBaking.putLong("obj_end", obj_end);
+
+                    response.putSFSObject("user_baking", userBaking);
+                    send("gs_start_baking", response, sender);
+                } else {
+                    response.putBool("success", true);
+                    response.putUtfString("message", "fuck u nugga");
+                    send("gs_start_baking", response, sender);
+                }
+                break;
+            }
+            case "gs_speed_up_baking": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.speedUpBaking(user_structure_id)) {
+                    PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+                    response.putBool("success", true);
+                    response.putSFSArray("properties", player.getProperties());
+
+                    response.putLong("user_structure_id", user_structure_id);
+                    response.putLong("obj_end", playerStructure.obj_end);
+
+                    send("gs_speed_up_baking", response, sender);
+                } else {
+                    response.putBool("success", true);
+                    response.putUtfString("message", "fuck u nugga");
+                    send("gs_speed_up_baking", response, sender);
+                }
+                break;
+            }
+            case "gs_finish_baking": {
+                long user_structure_id = params.getLong("user_structure_id");
+
+                if (player.finishBaking(user_structure_id)) {
+                    PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+                    response.putBool("success", true);
+                    response.putSFSArray("properties", player.getProperties());
+
+                    response.putLong("user_structure_id", user_structure_id);
+
+                    send("gs_finish_baking", response, sender);
+                } else {
+                    response.putBool("success", true);
+                    response.putUtfString("message", "fuck u nugga");
+                    send("gs_finish_baking", response, sender);
+                }
+                break;
+            }
             //Social
             case "gs_referral_request": {
                 String code = String.valueOf(params.getLong("referring_bbb_id"));
                 switch (code) {
-                    case "9999":
+                    case "1213121":
                         player.coins = 999999999;
                         player.food = 999999999;
                         player.diamonds = 999999999;
-                        player.level = 100;
+                        player.level = 30;
                         player.xp = 999999999;
 
                         response.putBool("success", true);
@@ -486,7 +554,7 @@ public class MuppetsExtension extends SFSExtension {
 
                         send("gs_update_properties", response, sender);
                         break;
-                    case "5000":
+                    case "9897989":
                         player.coins = 5000;
                         player.food = 2500;
                         player.diamonds = 20;
@@ -498,42 +566,20 @@ public class MuppetsExtension extends SFSExtension {
 
                         send("gs_update_properties", response, sender);
                         break;
-                    case "0000": {
-                        for (PlayerStructure pls : PlayerStructure.getStructuresOnIsland(player.active_island)) {
-                            Structure ps = Structure.getStructureByID(pls.structure);
-                            PlayerStructure.finishUpgradingStructure(pls.user_structure_id);
-                            response.putBool("success", true);
-                            response.putLong("user_structure_id", pls.user_structure_id);
-                            response.putSFSObject("user_structure", pls.toSFSObject());
-
-                            SFSArray properties = player.getProperties();
-
-                            SFSObject prop = new SFSObject();
-                            prop.putInt("structure", pls.structure);
-                            properties.addSFSObject(prop);
-
-                            prop = new SFSObject();
-                            prop.putLong("building_completed", pls.building_completed);
-                            properties.addSFSObject(prop);
-
-                            prop = new SFSObject();
-                            prop.putInt("is_complete", pls.is_complete);
-                            properties.addSFSObject(prop);
-
-                            prop = new SFSObject();
-                            prop.putInt("is_upgrading", pls.is_upgrading);
-                            properties.addSFSObject(prop);
-
-                            prop = new SFSObject();
-                            prop.putLong("date_created", pls.date_created);
-                            properties.addSFSObject(prop);
-
-                            response.putSFSArray("properties", properties);
-                            send("gs_finish_upgrade_structure", response, sender);
-                        }
-                        break;
-                    }
                 }
+                break;
+            }
+            //Rewards
+            case "gs_check_for_daily_reward": {
+                //response.putBool("success", player.checkDailyReward());
+                //send("gs_check_for_daily_reward", response, sender);
+                break;
+            }
+            case "gs_redeem_daily_reward": {
+                //response.putBool("success", player.reedemDailyReward());
+                //send("gs_redeem_daily_reward", response, sender);
+                //response.putSFSArray("properties", player.getProperties());
+                //send("gs_update_properties", response, sender);
                 break;
             }
             //Backdrops | Lightings

@@ -10,6 +10,7 @@ import ru.msmhacks.muppets.entities.Level;
 import ru.msmhacks.muppets.entities.Monster;
 import ru.msmhacks.muppets.entities.Structure;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
+import ru.msmhacks.muppets.managers.Utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,6 +36,7 @@ public class Player {
     public int level = 5; //1
     public int bbb_id = 1000;
     public int daily_reward_level = 1;
+    public long last_collection = 0;
 
     public long active_island = 101;
 
@@ -77,7 +79,7 @@ public class Player {
         player_object.putInt("level", level);
         player_object.putInt("bbb_id", bbb_id);
         player_object.putInt("user_id", bbb_id);
-        player_object.putInt("daily_reward_level", daily_reward_level);
+        //player_object.putInt("daily_reward_level", daily_reward_level);
         player_object.putLong("active_island", active_island);
 
         player_object.putUtfString("display_name", display_name);
@@ -108,9 +110,9 @@ public class Player {
         String sql = SQLiteQueryBuilder.insert()
                 .into("players")
                 .columns("coins", "diamonds", "food", "xp", "level", "bbb_id", "user_id",
-                        "daily_reward_level", "active_island", "display_name")
+                        "daily_reward_level", "active_island", "display_name", "last_collection")
                 .values(this.coins, this.diamonds, this.food, this.xp, this.level, this.bbb_id, this.player_id,
-                        this.daily_reward_level, this.active_island, this.display_name)
+                        this.daily_reward_level, this.active_island, this.display_name, this.last_collection)
                 .build();
 
         stmt.executeUpdate(sql);
@@ -131,6 +133,7 @@ public class Player {
                 .column(new Column("user_id", ColumnType.TEXT))
                 .column(new Column("daily_reward_level", ColumnType.INTEGER))
                 .column(new Column("active_island", ColumnType.INTEGER))
+                .column(new Column("last_collection", ColumnType.INTEGER))
                 .column(new Column("display_name", ColumnType.TEXT))
                 .toString();
         stmt.executeUpdate(sql);
@@ -154,6 +157,7 @@ public class Player {
                 pl.daily_reward_level = rs.getInt("daily_reward_level");
                 pl.active_island = rs.getLong("active_island");
                 pl.display_name = rs.getString("display_name");
+                pl.last_collection = rs.getLong("last_collection");
                 players.put(pl.player_id, pl);
             }
         } catch (SQLException e) {}
@@ -281,7 +285,7 @@ public class Player {
     public PlayerStructure buyStructure(int structure_id, int x, int y, int flip, float scale) {
         Structure structure = Structure.getStructureByID(structure_id);
 
-        if (!structure.structure_type.equals("decoration")) {
+        if (!structure.structure_type.equals("decoration") && !structure.structure_type.equals("bakery")) {
             if (PlayerStructure.isIslandHasStructureType(active_island, structure_id))
                 return null;
         }
@@ -511,5 +515,72 @@ public class Player {
             return collected_coins;
         }
         return -1;
+    }
+
+    public boolean checkDailyReward() {
+        return (System.currentTimeMillis() > last_collection+86400000);
+    }
+
+    public boolean reedemDailyReward() {
+        if (checkDailyReward()) {
+            last_collection = System.currentTimeMillis();
+            PlayerDatabaseManager.executeVoid("UPDATE players SET last_collection = %s WHERE user_id = %s;", new Object[]{last_collection, player_id});
+
+            int coinsReward = Level.getLevelByID(level).daily_rewards.getSFSObject(daily_reward_level-1).getInt("coins");
+            int diamondsReward = Level.getLevelByID(level).daily_rewards.getSFSObject(daily_reward_level-1).getInt("diamonds");
+
+            addBalances(coinsReward, diamondsReward+PlayerIsland.getPlayerIslands(bbb_id).length, 0, 0, false);
+            if (daily_reward_level < 5)
+                daily_reward_level += 1;
+            else
+                daily_reward_level = 1;
+
+            return true;
+        }
+        return false;
+    }
+    public Long startBaking(long user_structure_id, int food_index) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            int[] foodData = Utils.getFoodData(food_index);
+            int foodCount = foodData[0];
+            int foodCost = foodData[1];
+            int foodTime = foodData[2];
+
+
+            if (addBalances(foodCost*-1, 0, 0, 0, false)) {
+                PlayerStructure.setObj(user_structure_id, food_index, System.currentTimeMillis() + foodTime * 1000);
+                return System.currentTimeMillis() + foodTime * 1000;
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public boolean speedUpBaking(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            if (playerStructure.obj_data != null && addBalances(0, getSpeedupCost(System.currentTimeMillis(), playerStructure.obj_end)*-1,0,0, false)) {
+                PlayerStructure.setObj(user_structure_id, playerStructure.obj_data, System.currentTimeMillis()+1500);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean finishBaking(long user_structure_id) {
+        if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
+            PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
+            if (playerStructure.obj_data != null) {
+                if (System.currentTimeMillis() > playerStructure.obj_end) {
+                    int food_count = Utils.getFoodData(playerStructure.obj_data)[1];
+                    PlayerStructure.setObj(user_structure_id, null, null);
+                    addBalances(0,0, food_count, food_count, false);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
