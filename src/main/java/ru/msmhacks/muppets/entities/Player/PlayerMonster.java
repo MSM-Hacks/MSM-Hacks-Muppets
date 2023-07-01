@@ -50,6 +50,7 @@ public class PlayerMonster {
         monster.flip = flip;
         monster.volume = volume;
         monster.date_created = System.currentTimeMillis();
+        monster.last_collection = System.currentTimeMillis();
 
         monsters.put(monster.user_monster_id, monster);
         try {monster.importToDB();} catch (SQLException ignored) {}
@@ -82,7 +83,7 @@ public class PlayerMonster {
         monster.putFloat("volume", volume);
 
         monster.putLong("date_created", date_created);
-        monster.putLong("last_collection", System.currentTimeMillis());
+        monster.putLong("last_collection", last_collection);
 
         return monster;
     }
@@ -148,9 +149,9 @@ public class PlayerMonster {
                 pi.happiness = rs.getInt("happiness");
                 pi.monster = rs.getInt("monster");
                 pi.volume = rs.getFloat("volume");
-                pi.collected_coins = rs.getInt("collected_coins")==0?null:rs.getInt("collected_coins");
+                pi.collected_coins = rs.getInt("collected_coins");
                 pi.date_created = rs.getLong("date_created");
-                pi.last_collection = rs.getLong("last_collection")==0?null:rs.getLong("last_collection");
+                pi.last_collection = rs.getLong("last_collection");
 
                 monsters.put(pi.user_monster_id, pi);
             }
@@ -242,5 +243,14 @@ public class PlayerMonster {
 
         PlayerDatabaseManager.executeVoid("UPDATE player_monsters SET times_fed = %s, level = %s WHERE user_monster_id = %s;",
                 new Object[]{playerMonster.times_fed, playerMonster.level, user_monster_id});
+    }
+
+    public static void collectFromMonster(long user_monster_id) {
+        PlayerMonster playerMonster = getMonster(user_monster_id);
+        playerMonster.last_collection = System.currentTimeMillis();
+        playerMonster.collected_coins = null;
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_monsters SET last_collection = %s, collected_coins = %s WHERE user_monster_id = %s;",
+                new Object[]{playerMonster.last_collection, 0, user_monster_id});
     }
 }

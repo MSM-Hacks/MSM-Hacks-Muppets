@@ -41,10 +41,10 @@ public class MuppetsExtension extends SFSExtension {
         addEventListener(SFSEventType.USER_JOIN_ZONE, new PlayerJoinListener());
 
         try {
-            runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
             AuthDatabaseManager.init(false);
-            StaticDatabaseManager.initAllDatabases(true);
+            StaticDatabaseManager.initAllDatabases(false);
             PlayerDatabaseManager.initAllDatabases(false);
+            runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -733,6 +733,35 @@ public class MuppetsExtension extends SFSExtension {
                     response.putUtfString("message", "Error sell monster");
                 }
                 send("gs_sell_monster", response, sender);
+                break;
+            }
+            case "gs_collect_monster": {
+                long user_monster_id = params.getLong("user_monster_id");
+
+                int collected = player.collectFromMonster(user_monster_id);
+                if (collected != -1) {
+                    PlayerMonster newMonster = PlayerMonster.getMonster(user_monster_id);
+                    response.putBool("success", true);
+                    response.putLong("user_monster_id", user_monster_id);
+                    response.putInt("coins", collected);
+
+                    send("gs_collect_monster", response, sender);
+
+                    PlayerMonster.collectFromMonster(user_monster_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putLong("last_collection", newMonster.last_collection);
+                    //response.putInt("collected_coins", newMonster.collected_coins);
+                    send("gs_update_monster", response, sender);
+
+                    response = new SFSObject();
+                    response.putSFSArray("properties", player.getProperties());
+                    send("gs_update_properties", response, sender);
+                    break;
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error mute monster");
+                    send("gs_collect_monster", response, sender);
+                }
                 break;
             }
             case "gs_muppetman_add_egg":

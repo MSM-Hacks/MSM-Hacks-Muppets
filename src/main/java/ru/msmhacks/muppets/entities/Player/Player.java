@@ -491,4 +491,25 @@ public class Player {
         }
         return null;
     }
+
+    public int collectFromMonster(long user_monster_id) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            PlayerMonster playerMonster = PlayerMonster.getMonster(user_monster_id);
+            Monster monster = Monster.getMonsterByID(playerMonster.monster);
+
+            float coinsRate = monster.levels.getSFSObject(playerMonster.level-1).getInt("coins");
+            float timeDelta = System.currentTimeMillis() - playerMonster.last_collection;
+            int maxCoins = monster.levels.getSFSObject(playerMonster.level-1).getInt("max_coins");
+
+            int collected_coins = Math.round(timeDelta/60000*coinsRate);
+            if (collected_coins > maxCoins) {
+                collected_coins = maxCoins;
+            }
+
+            PlayerMonster.collectFromMonster(user_monster_id);
+            addBalances(collected_coins,0,0,0,false);
+            return collected_coins;
+        }
+        return -1;
+    }
 }
