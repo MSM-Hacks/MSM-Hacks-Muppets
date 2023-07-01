@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.getMaximumData;
 import static ru.msmhacks.muppets.managers.PlayerDatabaseManager.stmt;
-import static ru.msmhacks.muppets.managers.Utils.log;
 
 public class PlayerStructure {
     public static HashMap<Long, PlayerStructure> structures = new HashMap<>();
@@ -312,8 +311,6 @@ public class PlayerStructure {
     public static boolean finishUpgradingStructure(long user_structure_id) {
         PlayerStructure playerStructure = getStructure(user_structure_id);
         Structure oldStructure = Structure.getStructureByID(playerStructure.structure);
-
-        if (playerStructure.is_upgrading == 0) {return false;}
         Structure newStructure = Structure.getStructureByID(oldStructure.upgrades_to);
 
         playerStructure.structure = newStructure.structure_id;
@@ -329,7 +326,7 @@ public class PlayerStructure {
         return true;
     }
 
-    public static void setupEgg(long user_structure_id, Integer obj_data, Long obj_end) {
+    public static void setObj(long user_structure_id, Integer obj_data, Long obj_end) {
         PlayerStructure structure = getStructure(user_structure_id);
         structure.obj_data = obj_data;
         structure.obj_end = obj_end;

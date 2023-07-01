@@ -5,13 +5,11 @@ import com.alexfu.sqlitequerybuilder.api.ColumnType;
 import com.alexfu.sqlitequerybuilder.api.SQLiteQueryBuilder;
 import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
-import ru.msmhacks.muppets.MuppetsExtension;
 import ru.msmhacks.muppets.entities.Island;
 import ru.msmhacks.muppets.entities.Level;
 import ru.msmhacks.muppets.entities.Monster;
 import ru.msmhacks.muppets.entities.Structure;
 import ru.msmhacks.muppets.managers.PlayerDatabaseManager;
-import ru.msmhacks.muppets.managers.Utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -402,7 +400,7 @@ public class Player {
             cost_coins = monster.cost_coins;
 
         if (addBalances(cost_coins*-1, monster.cost_diamonds*-1, 0, 0, false)) {
-            PlayerStructure.setupEgg(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
+            PlayerStructure.setObj(st, monster_id, System.currentTimeMillis() + monster.build_time*1000);
             return System.currentTimeMillis() + monster.build_time*1000;
         } else {
             return null;
@@ -413,7 +411,7 @@ public class Player {
         if (PlayerStructure.isIslandHasStructure(active_island, user_structure_id)) {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
             if (playerStructure.obj_data != null && addBalances(0, getSpeedupCost(System.currentTimeMillis(), playerStructure.obj_end)*-1,0,0, false)) {
-                PlayerStructure.setupEgg(user_structure_id, playerStructure.obj_data, System.currentTimeMillis()+1500);
+                PlayerStructure.setObj(user_structure_id, playerStructure.obj_data, System.currentTimeMillis()+1500);
                 return true;
             }
         }
@@ -425,7 +423,7 @@ public class Player {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
             if (playerStructure.obj_data != null) {
                 if (addBalances((int) Math.round(Monster.getMonsterByID(playerStructure.obj_data).cost_coins*0.75), 0,0,0, false)) {
-                    PlayerStructure.setupEgg(user_structure_id, null, null);
+                    PlayerStructure.setObj(user_structure_id, null, null);
                     return true;
                 }
             }
@@ -438,7 +436,7 @@ public class Player {
             PlayerStructure playerStructure = PlayerStructure.getStructure(user_structure_id);
             if (playerStructure.obj_data != null) {
                 Monster newMonster = Monster.getMonsterByID(playerStructure.obj_data);
-                PlayerStructure.setupEgg(user_structure_id, null, null);
+                PlayerStructure.setObj(user_structure_id, null, null);
 
                 PlayerMonster playerMonster = PlayerMonster.createNewMonster(active_island, newMonster.monster_id, x, y, flip?1:0, 1.0F);
                 addBalances(0,0,0, newMonster.xp, false);
@@ -478,6 +476,18 @@ public class Player {
             addBalances(monster.cost_coins , 0, 0, 0, false);
             PlayerMonster.removeMonster(user_monster_id);
             return true;
+        }
+        return null;
+    }
+
+    public PlayerMonster feedMonster(long user_monster_id) {
+        if (PlayerMonster.isIslandHasMonster(active_island, user_monster_id)) {
+            PlayerMonster playerMonster = PlayerMonster.getMonster(user_monster_id);
+            Monster monster = Monster.getMonsterByID(playerMonster.monster);
+            if (addBalances(0,0,monster.levels.getSFSObject(playerMonster.level-1).getInt("food")*-1,0,false)) {
+                PlayerMonster.feedMonster(user_monster_id);
+                return playerMonster;
+            }
         }
         return null;
     }

@@ -231,4 +231,16 @@ public class PlayerMonster {
         PlayerDatabaseManager.executeVoid("DELETE FROM player_monsters WHERE user_monster_id = %s;",
                 new Object[]{user_monster_id});
     }
+
+    public static void feedMonster(long user_monster_id) {
+        PlayerMonster playerMonster = getMonster(user_monster_id);
+        playerMonster.times_fed += 1;
+        if (playerMonster.times_fed >= 4) {
+            playerMonster.times_fed = 0;
+            playerMonster.level += 1;
+        }
+
+        PlayerDatabaseManager.executeVoid("UPDATE player_monsters SET times_fed = %s, level = %s WHERE user_monster_id = %s;",
+                new Object[]{playerMonster.times_fed, playerMonster.level, user_monster_id});
+    }
 }

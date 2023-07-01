@@ -26,6 +26,7 @@ public class StaticDatabaseManager {
         if (drop) {
             SFSArray st;
             Monster.dropMonstersDatabase();
+            Monster.initMonstersDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "monster_data.json")).getSFSArray("monsters_data");
             for (int y=0;y<st.size();y++) {
                 Monster x = Monster.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -33,6 +34,7 @@ public class StaticDatabaseManager {
             }
 
             Structure.dropStructuresDatabase();
+            Structure.initStructuresDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "structure_data.json")).getSFSArray("structures_data");
             for (int y=0;y<st.size();y++) {
                 Structure x = Structure.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -40,6 +42,7 @@ public class StaticDatabaseManager {
             }
 
             Island.dropIslandsDatabase();
+            Island.initIslandsDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "island_data.json")).getSFSArray("islands_data");
             for (int y=0;y<st.size();y++) {
                 Island x = Island.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -47,6 +50,7 @@ public class StaticDatabaseManager {
             }
 
             Level.dropLevelsDatabase();
+            Level.initLevelsDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "level_data.json")).getSFSArray("level_data");
             for (int y=0;y<st.size();y++) {
                 Level x = Level.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -54,6 +58,7 @@ public class StaticDatabaseManager {
             }
 
             BreedingCombination.dropBreedingDatabase();
+            BreedingCombination.initBreedingDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "breeding_data.json")).getSFSArray("breedingcombo_data");
             for (int y=0;y<st.size();y++) {
                 BreedingCombination x = BreedingCombination.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -61,6 +66,7 @@ public class StaticDatabaseManager {
             }
 
             Light.dropLightsDatabase();
+            Light.initLightsDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "lighting_data.json")).getSFSArray("lighting_data");
             for (int y=0;y<st.size();y++) {
                 Light x = Light.initWithSFSObject((SFSObject) st.getSFSObject(y));
@@ -68,6 +74,7 @@ public class StaticDatabaseManager {
             }
 
             Backdrop.dropBackdropsDatabase();
+            Backdrop.initBackdropsDatabase();
             st = (SFSArray) Utils.getSFSFromJson(new File(MuppetsExtension.DBROOT + "backdrop_data.json")).getSFSArray("backdrop_data");
             for (int y=0;y<st.size();y++) {
                 Backdrop x = Backdrop.initWithSFSObject((SFSObject) st.getSFSObject(y));

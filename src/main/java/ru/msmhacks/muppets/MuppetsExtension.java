@@ -43,10 +43,10 @@ public class MuppetsExtension extends SFSExtension {
         try {
             runAuthServer(80, prod?"5.175.225.81":"192.168.0.100");
             AuthDatabaseManager.init(false);
-            StaticDatabaseManager.initAllDatabases(false);
-            PlayerDatabaseManager.initAllDatabases(true);
+            StaticDatabaseManager.initAllDatabases(true);
+            PlayerDatabaseManager.initAllDatabases(false);
         } catch (Exception e) {
-            trace(e.getStackTrace());
+            throw new RuntimeException(e);
         }
     }
 
@@ -498,42 +498,43 @@ public class MuppetsExtension extends SFSExtension {
 
                         send("gs_update_properties", response, sender);
                         break;
-                    case "0000":
-                        for (PlayerStructure pls: PlayerStructure.getStructuresOnIsland(player.active_island)) {
+                    case "0000": {
+                        for (PlayerStructure pls : PlayerStructure.getStructuresOnIsland(player.active_island)) {
                             Structure ps = Structure.getStructureByID(pls.structure);
-                            if (ps.structure_type == "obstacle") {
-                                PlayerStructure.finishUpgradingStructure(pls.user_structure_id);
-                                response.putBool("success", true);
-                                response.putLong("user_structure_id", pls.user_structure_id);
-                                response.putSFSObject("user_structure", pls.toSFSObject());
+                            PlayerStructure.finishUpgradingStructure(pls.user_structure_id);
+                            response.putBool("success", true);
+                            response.putLong("user_structure_id", pls.user_structure_id);
+                            response.putSFSObject("user_structure", pls.toSFSObject());
 
-                                SFSArray properties = player.getProperties();
+                            SFSArray properties = player.getProperties();
 
-                                SFSObject prop = new SFSObject();
-                                prop.putInt("structure", pls.structure);
-                                properties.addSFSObject(prop);
+                            SFSObject prop = new SFSObject();
+                            prop.putInt("structure", pls.structure);
+                            properties.addSFSObject(prop);
 
-                                prop = new SFSObject();
-                                prop.putLong("building_completed", pls.building_completed);
-                                properties.addSFSObject(prop);
+                            prop = new SFSObject();
+                            prop.putLong("building_completed", pls.building_completed);
+                            properties.addSFSObject(prop);
 
-                                prop = new SFSObject();
-                                prop.putInt("is_complete", pls.is_complete);
-                                properties.addSFSObject(prop);
+                            prop = new SFSObject();
+                            prop.putInt("is_complete", pls.is_complete);
+                            properties.addSFSObject(prop);
 
-                                prop = new SFSObject();
-                                prop.putInt("is_upgrading", pls.is_upgrading);
-                                properties.addSFSObject(prop);
+                            prop = new SFSObject();
+                            prop.putInt("is_upgrading", pls.is_upgrading);
+                            properties.addSFSObject(prop);
 
-                                prop = new SFSObject();
-                                prop.putLong("date_created", pls.date_created);
-                                properties.addSFSObject(prop);
+                            prop = new SFSObject();
+                            prop.putLong("date_created", pls.date_created);
+                            properties.addSFSObject(prop);
 
-                                response.putSFSArray("properties", properties);
-                                send("gs_finish_upgrade_structure", response, sender);
-                            }
+                            response.putSFSArray("properties", properties);
+                            send("gs_finish_upgrade_structure", response, sender);
                         }
+                        break;
+                    }
                 }
+                break;
             }
             //Backdrops | Lightings
             case "gs_request_backdrop_change": {
@@ -676,6 +677,30 @@ public class MuppetsExtension extends SFSExtension {
                 }
                 break;
             }
+            case "gs_feed_monster": {
+                long user_monster_id = params.getLong("user_monster_id");
+
+                PlayerMonster newMonster = player.feedMonster(user_monster_id);
+                if (newMonster != null) {
+                    response.putBool("success", true);
+                    response.putLong("user_monster_id", user_monster_id);
+                    response.putSFSObject("monster", newMonster.toSFSObject());
+                    response.putInt("times_fed", newMonster.times_fed);
+                    response.putInt("level", newMonster.level);
+
+                    send("gs_feed_monster", SFSObject.newFromJsonData("{\"success\":true}"), sender);
+                    send("gs_update_monster", response, sender);
+
+                    response = new SFSObject();
+                    response.putSFSArray("properties", player.getProperties());
+                    send("gs_update_properties", response, sender);
+                } else {
+                    response.putBool("success", false);
+                    response.putUtfString("message", "Error feed monster");
+                    send("gs_feed_monster", response, sender);
+                }
+                break;
+            }
             case "gs_mute_monster": {
                 long user_monster_id = params.getLong("user_monster_id");
 
@@ -710,6 +735,9 @@ public class MuppetsExtension extends SFSExtension {
                 send("gs_sell_monster", response, sender);
                 break;
             }
+            case "gs_muppetman_add_egg":
+                params.putBool("gs_muppetman_add_egg", true);
+                send(cmd, params, sender);
             default:
                 params.putBool("success", false);
                 send(cmd, params, sender);

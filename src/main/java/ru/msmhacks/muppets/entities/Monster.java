@@ -125,7 +125,7 @@ public class Monster {
         stmt.executeUpdate("DROP TABLE IF EXISTS monsters");
     }
 
-    public void importToDB() throws SQLException {
+    public void importToDB() {
         String sql = SQLiteQueryBuilder.insert()
                 .into("monsters")
                 .columns("monster_id", "beds", "build_time", "cost_coins", "cost_diamonds", "entity_id", "hide_friends",
@@ -140,7 +140,11 @@ public class Monster {
                         this.requirements.toJson())
                 .build();
 
-        stmt.executeUpdate(sql);
+        try {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Monster getMonsterByID(int monster_id) {
