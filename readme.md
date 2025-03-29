@@ -1,5 +1,3 @@
-Here's the README in English for GitHub in Markdown format:
-
 # MSM-Hacks-Muppets
 
 A project to create a **private server** for the game **My Muppets Show** — a spin-off of the popular game **My Singing Monsters**, with enhancements and mods to improve the gameplay.
